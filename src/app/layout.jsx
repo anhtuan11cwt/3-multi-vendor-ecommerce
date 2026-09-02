@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Multi Vendor Ecommerce",
   description: "Multi Vendor Ecommerce Platform",
+  title: "Multi Vendor Ecommerce",
 };
 
 export default function RootLayout({ children }) {
