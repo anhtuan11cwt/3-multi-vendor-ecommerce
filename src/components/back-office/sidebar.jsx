@@ -53,7 +53,9 @@ function SidebarContent() {
   return (
     <div className="flex h-full flex-col">
       <div className="px-6 py-5">
-        <h1 className="font-bold text-xl">LIMME</h1>
+        <h1 className="font-bold text-slate-800 text-xl dark:text-slate-50">
+          LIMME
+        </h1>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3">
@@ -152,7 +154,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden border-r bg-background lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:flex lg:w-60 lg:flex-col">
+      <aside className="hidden border-slate-200 border-r bg-white shadow-md lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:flex lg:w-60 lg:flex-col dark:border-slate-700 dark:bg-slate-900">
         <SidebarContent />
       </aside>
 
@@ -167,7 +169,10 @@ export default function Sidebar() {
           <Menu size={20} />
           <span className="sr-only">Chuyển đổi menu</span>
         </Button>
-        <SheetContent className="w-60 p-0" side="left">
+        <SheetContent
+          className="w-56 border-slate-200 bg-white p-0 sm:w-60 dark:border-slate-700 dark:bg-slate-900"
+          side="left"
+        >
           <SheetTitle className="sr-only">Điều hướng</SheetTitle>
           <SidebarContent />
         </SheetContent>

@@ -25,7 +25,7 @@ const orderStats = [
 
 export default function LargeCards() {
   return (
-    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
       {orderStats.map((stat) => (
         <LargeCard data={stat} key={stat.period} />
       ))}

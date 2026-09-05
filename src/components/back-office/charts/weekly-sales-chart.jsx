@@ -89,10 +89,12 @@ export default function WeeklySalesChart() {
   const activeTab = tabs.find((tab) => tab.type === chartToDisplay);
 
   return (
-    <Card>
+    <Card className="bg-white shadow-xl dark:bg-slate-800">
       <CardHeader>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle>Doanh thu tuần</CardTitle>
+          <CardTitle className="text-slate-800 dark:text-slate-50">
+            Doanh thu tuần
+          </CardTitle>
           <div className="flex gap-2">
             {tabs.map((tab) => (
               <Button

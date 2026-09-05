@@ -30,7 +30,7 @@ const orderStatus = [
 
 export default function SmallCards() {
   return (
-    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
       {orderStatus.map((status) => (
         <SmallCard data={status} key={status.title} />
       ))}

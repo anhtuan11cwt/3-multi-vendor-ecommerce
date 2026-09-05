@@ -35,9 +35,11 @@ const options = {
 
 export default function BestSellingProductsChart() {
   return (
-    <Card>
+    <Card className="bg-white shadow-xl dark:bg-slate-800">
       <CardHeader>
-        <CardTitle>Sản phẩm bán chạy</CardTitle>
+        <CardTitle className="text-slate-800 dark:text-slate-50">
+          Sản phẩm bán chạy
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="relative mx-auto w-full max-w-[280px]">

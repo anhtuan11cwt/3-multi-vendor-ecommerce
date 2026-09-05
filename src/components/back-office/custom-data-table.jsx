@@ -27,8 +27,8 @@ export default function CustomDataTable() {
   const itemEndIndex = Math.min(startIndex + PAGE_SIZE, data.length);
 
   return (
-    <div className="p-4 sm:p-8">
-      <h2 className="mb-4 font-bold text-2xl text-slate tracking-tight">
+    <div className="p-2 sm:p-4 md:p-8">
+      <h2 className="mt-4 mb-4 px-2 font-bold text-lg text-slate-800 tracking-tight sm:mt-8 sm:px-4 sm:text-2xl dark:text-slate-50">
         Đơn Hàng Gần Đây
       </h2>
 
@@ -79,7 +79,7 @@ export default function CustomDataTable() {
           </span>
         </span>
 
-        <nav className="flex items-center justify-center gap-1 sm:gap-2">
+        <nav className="flex flex-wrap items-center justify-center gap-1 sm:gap-2">
           <Button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage(currentPage - 1)}
