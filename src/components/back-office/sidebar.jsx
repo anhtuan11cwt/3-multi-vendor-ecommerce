@@ -3,8 +3,9 @@
 import {
   ChevronDown,
   FolderTree,
-  Image,
+  Image as ImageIcon,
   LayoutDashboard,
+  LogOut,
   Menu,
   Package,
   Settings,
@@ -18,6 +19,7 @@ import {
   UserCog,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -31,7 +33,7 @@ const catalogLinks = [
   { href: "/dashboard/categories", icon: Tags, label: "Danh mục" },
   { href: "/dashboard/attributes", icon: Sliders, label: "Thuộc tính" },
   { href: "/dashboard/coupons", icon: Ticket, label: "Mã giảm giá" },
-  { href: "/dashboard/banners", icon: Image, label: "Banner" },
+  { href: "/dashboard/banners", icon: ImageIcon, label: "Banner" },
 ];
 
 const navLinks = [
@@ -46,6 +48,7 @@ const navLinks = [
 
 function SidebarContent() {
   const pathname = usePathname();
+  const { close } = useSidebar();
   const [catalogOpen, setCatalogOpen] = useState(
     catalogLinks.some((link) => pathname.startsWith(link.href)),
   );
@@ -53,9 +56,16 @@ function SidebarContent() {
   return (
     <div className="flex h-full flex-col">
       <div className="px-6 py-5">
-        <h1 className="font-bold text-slate-800 text-xl dark:text-slate-50">
-          LIMME
-        </h1>
+        <Link href="/dashboard">
+          <Image
+            alt="Logo"
+            className="w-36"
+            height={30}
+            priority
+            src="/logo.svg"
+            width={132}
+          />
+        </Link>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3">
@@ -144,6 +154,17 @@ function SidebarContent() {
           })}
         </ul>
       </nav>
+
+      <div className="mt-auto px-3 pb-3">
+        <button
+          className="flex w-full items-center gap-3 rounded bg-slate-600 px-3 py-2 text-sm text-white hover:bg-slate-700"
+          onClick={close}
+          type="button"
+        >
+          <LogOut size={18} />
+          <span>Đăng xuất</span>
+        </button>
+      </div>
     </div>
   );
 }
