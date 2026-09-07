@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Building2,
   ChevronDown,
   FolderTree,
   Image as ImageIcon,
@@ -18,12 +19,14 @@ import {
   Truck,
   UserCog,
   Users,
+  Wallet,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "./sidebar-provider";
@@ -42,6 +45,8 @@ const navLinks = [
   { href: "/dashboard/farmers", icon: Truck, label: "Nông dân" },
   { href: "/dashboard/orders", icon: ShoppingBag, label: "Đơn hàng" },
   { href: "/dashboard/staff", icon: UserCog, label: "Nhân viên" },
+  { href: "/dashboard/community", icon: Building2, label: "Cộng đồng" },
+  { href: "/dashboard/wallet", icon: Wallet, label: "Ví" },
   { href: "/dashboard/settings", icon: Settings, label: "Cài đặt" },
   { href: "/", icon: ShoppingCart, label: "Cửa hàng trực tuyến" },
 ];
@@ -68,7 +73,7 @@ function SidebarContent() {
         </Link>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3">
+      <ScrollArea className="flex-1 px-3">
         <ul className="space-y-1">
           <li>
             <Button
@@ -153,7 +158,7 @@ function SidebarContent() {
             );
           })}
         </ul>
-      </nav>
+      </ScrollArea>
 
       <div className="mt-auto px-3 pb-3">
         <button
@@ -175,7 +180,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden border-slate-200 border-r bg-white shadow-md lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:flex lg:w-60 lg:flex-col dark:border-slate-700 dark:bg-slate-900">
+      <aside className="hidden border-slate-200 border-r bg-white shadow-md lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:flex lg:w-60 lg:flex-col dark:border-slate-700 dark:bg-slate-800">
         <SidebarContent />
       </aside>
 
@@ -191,7 +196,7 @@ export default function Sidebar() {
           <span className="sr-only">Chuyển đổi menu</span>
         </Button>
         <SheetContent
-          className="w-56 border-slate-200 bg-white p-0 sm:w-60 dark:border-slate-700 dark:bg-slate-900"
+          className="w-56 border-slate-200 bg-white p-0 sm:w-60 dark:border-slate-700 dark:bg-slate-800"
           side="left"
         >
           <SheetTitle className="sr-only">Điều hướng</SheetTitle>
