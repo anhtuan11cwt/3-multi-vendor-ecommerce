@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -17,41 +17,51 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { generateSlug } from "@/lib/generate-slug";
 import { uploadFile } from "@/lib/upload-file";
-import { categorySchema } from "@/lib/validations/category";
+import { cn } from "@/lib/utils";
+import { bannerSchema } from "@/lib/validations/banner";
 
-export default function UpdateCategoryPage() {
-  const { id } = useParams();
-  const router = useRouter();
+export default function NewBannerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
-  const [currentImageUrl] = useState("");
   const [resetKey, setResetKey] = useState(0);
+  const router = useRouter();
 
   const form = useForm({
     defaultValues: {
       description: "",
-      title: "",
+      url: "",
     },
-    resolver: zodResolver(categorySchema),
+    resolver: zodResolver(bannerSchema),
   });
 
   async function onSubmit(data) {
     setIsLoading(true);
     try {
-      let imageUrl = currentImageUrl;
+      let imageUrl = "";
       if (imageFile) {
-        imageUrl = await uploadFile(imageFile, "categories");
+        imageUrl = await uploadFile(imageFile, "banners");
       }
 
-      const slug = generateSlug(data.title);
-      const payload = { id, ...data, imageUrl, slug };
-      console.log("Dữ liệu cập nhật:", payload);
-      toast.success("Cập nhật danh mục thành công!", { duration: 2000 });
-      router.push("/dashboard/categories");
+      const payload = { ...data, imageUrl };
+
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+      const response = await fetch(`${baseUrl}/api/banners`, {
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+      });
+
+      if (response.ok) {
+        toast.success("Tạo banner thành công!", { duration: 2000 });
+        form.reset();
+        setImageFile(null);
+        router.push("/dashboard/banners");
+      } else {
+        toast.error("Có lỗi xảy ra khi tạo banner.", { duration: 2000 });
+      }
     } catch {
-      toast.error("Có lỗi xảy ra khi cập nhật danh mục.", { duration: 2000 });
+      toast.error("Có lỗi xảy ra khi tạo banner.", { duration: 2000 });
     } finally {
       setIsLoading(false);
     }
@@ -59,30 +69,17 @@ export default function UpdateCategoryPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-4">
-      <FormHeader title="Cập nhật danh mục" />
+      <FormHeader disabled={isLoading} title="Tạo banner mới" />
       <Card>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
-              <Controller
-                control={form.control}
-                name="title"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Tiêu đề danh mục
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      aria-invalid={fieldState.invalid}
-                      id={field.name}
-                      placeholder="Nhập tiêu đề danh mục"
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
+              <ImageInput
+                imageUrl=""
+                key={resetKey}
+                label="Ảnh banner"
+                loading={isLoading}
+                onFileChange={setImageFile}
               />
 
               <Controller
@@ -90,13 +87,18 @@ export default function UpdateCategoryPage() {
                 name="description"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Mô tả danh mục</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Mô tả (SEO)</FieldLabel>
                     <Textarea
                       {...field}
                       aria-invalid={fieldState.invalid}
-                      className="min-h-[120px] resize-none"
+                      className={cn(
+                        "min-h-[100px] resize-none",
+                        isLoading &&
+                          "pointer-events-none cursor-not-allowed opacity-50",
+                      )}
+                      disabled={isLoading}
                       id={field.name}
-                      placeholder="Nhập mô tả danh mục"
+                      placeholder="Nhập mô tả cho banner"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -105,15 +107,38 @@ export default function UpdateCategoryPage() {
                 )}
               />
 
-              <ImageInput
-                imageUrl={currentImageUrl}
-                key={resetKey}
-                label="Ảnh danh mục"
-                onFileChange={setImageFile}
+              <Controller
+                control={form.control}
+                name="url"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>
+                      Đường dẫn liên kết
+                    </FieldLabel>
+                    <Input
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      className={cn(
+                        isLoading &&
+                          "pointer-events-none cursor-not-allowed opacity-50",
+                      )}
+                      disabled={isLoading}
+                      id={field.name}
+                      placeholder="/products/example hoặc https://..."
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
               />
 
               <div className="flex justify-end gap-3 pt-4">
                 <Button
+                  className={cn(
+                    isLoading &&
+                      "pointer-events-none cursor-not-allowed opacity-50",
+                  )}
                   disabled={isLoading}
                   onClick={() => {
                     form.reset();
@@ -126,7 +151,7 @@ export default function UpdateCategoryPage() {
                   Đặt lại
                 </Button>
                 <Button disabled={isLoading} type="submit">
-                  {isLoading ? "Đang cập nhật..." : "Cập nhật danh mục"}
+                  {isLoading ? "Đang tạo..." : "Tạo banner"}
                 </Button>
               </div>
             </FieldGroup>

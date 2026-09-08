@@ -113,7 +113,9 @@ function SidebarContent() {
               <ul className="mt-1 ml-4 space-y-0.5 border-l pl-3">
                 {catalogLinks.map((link) => {
                   const Icon = link.icon;
-                  const isActive = pathname === link.href;
+                  const isActive =
+                    pathname === link.href ||
+                    pathname.startsWith(`${link.href}/`);
                   return (
                     <li key={link.href}>
                       <Button
