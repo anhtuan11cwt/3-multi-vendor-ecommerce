@@ -10,6 +10,7 @@ cloudinary.config({
 const FOLDER_MAP = {
   banners: "3-multi-vendor-ecommerce/banners",
   categories: "3-multi-vendor-ecommerce/categories",
+  markets: "3-multi-vendor-ecommerce/markets",
 };
 
 export async function POST(request) {

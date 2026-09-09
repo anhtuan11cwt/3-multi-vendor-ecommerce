@@ -15,12 +15,14 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { makePostRequest } from "@/lib/api-request";
+import { generateSlug } from "@/lib/generate-slug";
 import { uploadFile } from "@/lib/upload-file";
 import { cn } from "@/lib/utils";
-import { bannerSchema } from "@/lib/validations/banner";
+import { marketSchema } from "@/lib/validations/market";
 
-export default function NewBannerPage() {
+export default function NewMarketPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [resetKey, setResetKey] = useState(0);
@@ -28,34 +30,35 @@ export default function NewBannerPage() {
 
   const form = useForm({
     defaultValues: {
-      link: "",
+      description: "",
       title: "",
     },
-    resolver: zodResolver(bannerSchema),
+    resolver: zodResolver(marketSchema),
   });
 
   async function onSubmit(data) {
     setIsLoading(true);
     try {
-      let imageUrl = "";
+      let logoUrl = "";
       if (imageFile) {
-        imageUrl = await uploadFile(imageFile, "banners");
+        logoUrl = await uploadFile(imageFile, "markets");
       }
 
-      const payload = { ...data, imageUrl };
+      const slug = generateSlug(data.title);
+      const payload = { ...data, logoUrl, slug };
 
       await makePostRequest({
         data: payload,
-        endpoint: "api/banners",
+        endpoint: "api/markets",
         reset: form.reset,
-        resourceName: "Banner",
+        resourceName: "Chợ",
         setImageUrl: () => {
           setImageFile(null);
           setResetKey((k) => k + 1);
         },
         setLoading: setIsLoading,
       });
-      router.push("/dashboard/banners");
+      router.push("/dashboard/markets");
     } catch {
       setIsLoading(false);
     }
@@ -63,7 +66,7 @@ export default function NewBannerPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-4">
-      <FormHeader disabled={isLoading} title="Tạo banner mới" />
+      <FormHeader disabled={isLoading} title="Tạo chợ mới" />
       <Card>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -73,7 +76,7 @@ export default function NewBannerPage() {
                 name="title"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Tên banner</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Tên chợ</FieldLabel>
                     <Input
                       {...field}
                       aria-invalid={fieldState.invalid}
@@ -83,34 +86,7 @@ export default function NewBannerPage() {
                       )}
                       disabled={isLoading}
                       id={field.name}
-                      placeholder="Nhập tên banner"
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Controller
-                control={form.control}
-                name="link"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>
-                      Đường dẫn liên kết
-                    </FieldLabel>
-                    <Input
-                      {...field}
-                      aria-invalid={fieldState.invalid}
-                      className={cn(
-                        isLoading &&
-                          "pointer-events-none cursor-not-allowed opacity-50",
-                      )}
-                      disabled={isLoading}
-                      id={field.name}
-                      placeholder="/products/example hoặc https://..."
-                      type="url"
+                      placeholder="Nhập tên chợ"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -122,10 +98,35 @@ export default function NewBannerPage() {
               <ImageInput
                 imageUrl=""
                 key={resetKey}
-                label="Ảnh banner"
+                label="Logo chợ"
                 loading={isLoading}
-                maxFileSize={2 * 1024 * 1024}
+                maxFileSize={1 * 1024 * 1024}
                 onFileChange={setImageFile}
+              />
+
+              <Controller
+                control={form.control}
+                name="description"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Mô tả chợ</FieldLabel>
+                    <Textarea
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      className={cn(
+                        "min-h-[120px] resize-none",
+                        isLoading &&
+                          "pointer-events-none cursor-not-allowed opacity-50",
+                      )}
+                      disabled={isLoading}
+                      id={field.name}
+                      placeholder="Nhập mô tả chợ"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
               />
 
               <div className="flex justify-end gap-3 pt-4">
@@ -146,7 +147,7 @@ export default function NewBannerPage() {
                   Đặt lại
                 </Button>
                 <Button disabled={isLoading} type="submit">
-                  {isLoading ? "Đang tạo banner..." : "Tạo banner"}
+                  {isLoading ? "Đang tạo chợ..." : "Tạo chợ"}
                 </Button>
               </div>
             </FieldGroup>

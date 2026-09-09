@@ -12,7 +12,6 @@ import {
   Settings,
   ShoppingBag,
   ShoppingCart,
-  Sliders,
   Store,
   Tags,
   Ticket,
@@ -34,9 +33,8 @@ import { useSidebar } from "./sidebar-provider";
 const catalogLinks = [
   { href: "/dashboard/products", icon: Package, label: "Sản phẩm" },
   { href: "/dashboard/categories", icon: Tags, label: "Danh mục" },
-  { href: "/dashboard/attributes", icon: Sliders, label: "Thuộc tính" },
   { href: "/dashboard/coupons", icon: Ticket, label: "Mã giảm giá" },
-  { href: "/dashboard/banners", icon: ImageIcon, label: "Banner" },
+  { href: "/dashboard/banners", icon: ImageIcon, label: "Store Banners" },
 ];
 
 const navLinks = [
@@ -124,7 +122,7 @@ function SidebarContent() {
                         variant={isActive ? "secondary" : "ghost"}
                       >
                         <Link
-                          className="flex items-center gap-2"
+                          className="flex items-center gap-2 dark:text-slate-300"
                           href={link.href}
                         >
                           <Icon size={14} />

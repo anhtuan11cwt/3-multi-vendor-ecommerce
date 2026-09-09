@@ -7,13 +7,14 @@ import { useDropzone } from "react-dropzone";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const DEFAULT_MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 export default function ImageInput({
   label,
   imageUrl,
   onFileChange,
   loading = false,
+  maxFileSize = DEFAULT_MAX_FILE_SIZE,
 }) {
   const [preview, setPreview] = useState(null);
 
@@ -36,7 +37,7 @@ export default function ImageInput({
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { "image/*": [] },
-    maxSize: MAX_FILE_SIZE,
+    maxSize: maxFileSize,
     multiple: false,
     onDrop,
   });
@@ -97,7 +98,9 @@ export default function ImageInput({
                 ? "Thả ảnh vào đây..."
                 : "Kéo thả hoặc click để tải ảnh lên"}
             </p>
-            <p className="text-slate-400 text-xs">Tối đa 10MB</p>
+            <p className="text-slate-400 text-xs">
+              Tối đa {Math.round(maxFileSize / (1024 * 1024))}MB
+            </p>
           </div>
         </div>
       )}

@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import FormHeader from "@/components/back-office/form-header";
-import { ImageInput } from "@/components/form-inputs";
+import { ImageInput, SelectInput } from "@/components/form-inputs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -77,6 +77,26 @@ export default function UpdateCategoryPage() {
                       aria-invalid={fieldState.invalid}
                       id={field.name}
                       placeholder="Nhập tiêu đề danh mục"
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                control={form.control}
+                name="marketId"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <SelectInput
+                      errors={fieldState.invalid}
+                      isLoading={isLoading}
+                      label="Chợ"
+                      name={field.name}
+                      options={[]}
+                      register={field}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />

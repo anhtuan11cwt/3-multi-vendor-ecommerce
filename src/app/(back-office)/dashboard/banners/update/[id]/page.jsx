@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import FormHeader from "@/components/back-office/form-header";
@@ -20,11 +20,13 @@ import { uploadFile } from "@/lib/upload-file";
 import { cn } from "@/lib/utils";
 import { bannerSchema } from "@/lib/validations/banner";
 
-export default function NewBannerPage() {
+export default function UpdateBannerPage() {
+  const { id } = useParams();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+  const [currentImageUrl] = useState("");
   const [resetKey, setResetKey] = useState(0);
-  const router = useRouter();
 
   const form = useForm({
     defaultValues: {
@@ -37,13 +39,13 @@ export default function NewBannerPage() {
   async function onSubmit(data) {
     setIsLoading(true);
     try {
-      let imageUrl = "";
+      let imageUrl = currentImageUrl;
       if (imageFile) {
         imageUrl = await uploadFile(imageFile, "banners");
       }
 
-      const payload = { ...data, imageUrl };
-
+      const payload = { id, ...data, imageUrl };
+      console.log("Dữ liệu cập nhật:", payload);
       await makePostRequest({
         data: payload,
         endpoint: "api/banners",
@@ -63,7 +65,7 @@ export default function NewBannerPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-4">
-      <FormHeader disabled={isLoading} title="Tạo banner mới" />
+      <FormHeader disabled={isLoading} title="Cập nhật banner" />
       <Card>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -120,7 +122,7 @@ export default function NewBannerPage() {
               />
 
               <ImageInput
-                imageUrl=""
+                imageUrl={currentImageUrl}
                 key={resetKey}
                 label="Ảnh banner"
                 loading={isLoading}
@@ -146,7 +148,7 @@ export default function NewBannerPage() {
                   Đặt lại
                 </Button>
                 <Button disabled={isLoading} type="submit">
-                  {isLoading ? "Đang tạo banner..." : "Tạo banner"}
+                  {isLoading ? "Đang cập nhật..." : "Cập nhật banner"}
                 </Button>
               </div>
             </FieldGroup>

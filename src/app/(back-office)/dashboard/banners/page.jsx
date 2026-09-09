@@ -5,7 +5,7 @@ export default function BannersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        heading="Banner / Slider"
+        heading="Store Banners"
         href="/dashboard/banners/new"
         linkTitle="Thêm banner"
       />
