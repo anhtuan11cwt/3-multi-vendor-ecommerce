@@ -21,6 +21,14 @@ import { generateSlug } from "@/lib/generate-slug";
 import { uploadFile } from "@/lib/upload-file";
 import { categorySchema } from "@/lib/validations/category";
 
+const markets = [
+  { id: "1", title: "Chợ Bến Thành" },
+  { id: "2", title: "Chợ Đông Xuân" },
+  { id: "3", title: "Chợ Lớn" },
+  { id: "4", title: "Chợ Cần Thơ" },
+  { id: "5", title: "Chợ Ratched" },
+];
+
 export default function UpdateCategoryPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -32,6 +40,7 @@ export default function UpdateCategoryPage() {
   const form = useForm({
     defaultValues: {
       description: "",
+      marketIds: [],
       title: "",
     },
     resolver: zodResolver(categorySchema),
@@ -87,15 +96,16 @@ export default function UpdateCategoryPage() {
 
               <Controller
                 control={form.control}
-                name="marketId"
+                name="marketIds"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <SelectInput
                       errors={fieldState.invalid}
                       isLoading={isLoading}
-                      label="Chợ"
+                      label="Chọn chợ"
+                      multiple
                       name={field.name}
-                      options={[]}
+                      options={markets}
                       register={field}
                     />
                     {fieldState.invalid && (

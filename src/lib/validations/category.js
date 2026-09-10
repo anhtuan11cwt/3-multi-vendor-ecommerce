@@ -5,6 +5,7 @@ export const categorySchema = z.object({
     .string()
     .min(1, "Mô tả danh mục không được để trống")
     .max(500, "Mô tả danh mục tối đa 500 ký tự"),
+  marketIds: z.array(z.string()).optional().default([]),
   title: z
     .string()
     .min(1, "Tên danh mục không được để trống")
@@ -17,5 +18,5 @@ export const categoryApiSchema = categorySchema.extend({
     .url("Ảnh danh mục là bắt buộc")
     .optional()
     .or(z.literal("")),
-  slug: z.string().min(1, "Slug không hợp lệ"),
+  slug: z.string().min(1, "Đường dẫn ngắn không hợp lệ"),
 });
