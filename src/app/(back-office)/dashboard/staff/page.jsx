@@ -1,9 +1,14 @@
-import Heading from "@/components/back-office/heading";
+import PageHeader from "@/components/back-office/page-header";
 
-export default function Staff() {
+export default function StaffPage() {
   return (
     <div>
-      <Heading title="Nhân viên" />
+      <PageHeader href="/dashboard/staff/new" title="Nhân viên" />
+      <div className="mt-4">
+        <p className="text-muted-foreground text-sm">
+          Bảng dữ liệu nhân viên sẽ hiển thị ở đây.
+        </p>
+      </div>
     </div>
   );
 }

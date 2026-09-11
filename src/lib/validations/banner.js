@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const bannerSchema = z.object({
+  isActive: z.boolean().default(true),
   link: z.string().optional(),
   title: z
     .string()

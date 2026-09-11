@@ -3,9 +3,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import FormHeader from "@/components/back-office/form-header";
-import { ImageInput } from "@/components/form-inputs";
+import { ImageInput, ToggleInput } from "@/components/form-inputs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -33,10 +33,13 @@ export default function UpdateMarketPage() {
   const form = useForm({
     defaultValues: {
       description: "",
+      isActive: true,
       title: "",
     },
     resolver: zodResolver(marketSchema),
   });
+
+  const isActive = useWatch({ control: form.control, name: "isActive" });
 
   async function onSubmit(data) {
     setIsLoading(true);
@@ -47,7 +50,7 @@ export default function UpdateMarketPage() {
       }
 
       const slug = generateSlug(data.title);
-      const payload = { id, ...data, logoUrl, slug };
+      const payload = { id, ...data, isActive, logoUrl, slug };
       console.log("Dữ liệu cập nhật:", payload);
       await makePostRequest({
         data: payload,
@@ -129,6 +132,14 @@ export default function UpdateMarketPage() {
                     )}
                   </Field>
                 )}
+              />
+
+              <ToggleInput
+                label="Trạng thái chợ"
+                loading={isLoading}
+                name="isActive"
+                register={form.register}
+                value={isActive}
               />
 
               <div className="flex justify-end gap-3 pt-4">

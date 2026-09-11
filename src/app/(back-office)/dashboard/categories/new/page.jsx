@@ -3,10 +3,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import FormHeader from "@/components/back-office/form-header";
-import { ImageInput, SelectInput } from "@/components/form-inputs";
+import { ImageInput, SelectInput, ToggleInput } from "@/components/form-inputs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -39,11 +39,14 @@ export default function NewCategoryPage() {
   const form = useForm({
     defaultValues: {
       description: "",
+      isActive: true,
       marketIds: [],
       title: "",
     },
     resolver: zodResolver(categorySchema),
   });
+
+  const isActive = useWatch({ control: form.control, name: "isActive" });
 
   async function onSubmit(data) {
     setIsLoading(true);
@@ -54,7 +57,7 @@ export default function NewCategoryPage() {
       }
 
       const slug = generateSlug(data.title);
-      const payload = { ...data, imageUrl, slug };
+      const payload = { ...data, imageUrl, isActive, slug };
 
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
       const response = await fetch(`${baseUrl}/api/categories`, {
@@ -163,6 +166,14 @@ export default function NewCategoryPage() {
                 label="Ảnh danh mục"
                 loading={isLoading}
                 onFileChange={setImageFile}
+              />
+
+              <ToggleInput
+                label="Xuất bản danh mục"
+                loading={isLoading}
+                name="isActive"
+                register={form.register}
+                value={isActive}
               />
 
               <div className="flex justify-end gap-3 pt-4">

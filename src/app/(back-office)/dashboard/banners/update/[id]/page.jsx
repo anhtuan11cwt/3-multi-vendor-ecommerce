@@ -3,9 +3,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import FormHeader from "@/components/back-office/form-header";
-import { ImageInput } from "@/components/form-inputs";
+import { ImageInput, ToggleInput } from "@/components/form-inputs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -30,11 +30,14 @@ export default function UpdateBannerPage() {
 
   const form = useForm({
     defaultValues: {
+      isActive: true,
       link: "",
       title: "",
     },
     resolver: zodResolver(bannerSchema),
   });
+
+  const isActive = useWatch({ control: form.control, name: "isActive" });
 
   async function onSubmit(data) {
     setIsLoading(true);
@@ -44,7 +47,7 @@ export default function UpdateBannerPage() {
         imageUrl = await uploadFile(imageFile, "banners");
       }
 
-      const payload = { id, ...data, imageUrl };
+      const payload = { id, ...data, imageUrl, isActive };
       console.log("Dữ liệu cập nhật:", payload);
       await makePostRequest({
         data: payload,
@@ -128,6 +131,14 @@ export default function UpdateBannerPage() {
                 loading={isLoading}
                 maxFileSize={2 * 1024 * 1024}
                 onFileChange={setImageFile}
+              />
+
+              <ToggleInput
+                label="Xuất bản banner"
+                loading={isLoading}
+                name="isActive"
+                register={form.register}
+                value={isActive}
               />
 
               <div className="flex justify-end gap-3 pt-4">

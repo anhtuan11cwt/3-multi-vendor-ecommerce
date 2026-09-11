@@ -5,6 +5,7 @@ export const categorySchema = z.object({
     .string()
     .min(1, "Mô tả danh mục không được để trống")
     .max(500, "Mô tả danh mục tối đa 500 ký tự"),
+  isActive: z.boolean().default(true),
   marketIds: z.array(z.string()).optional().default([]),
   title: z
     .string()

@@ -5,6 +5,7 @@ export const productSchema = z.object({
   categoryId: z.string().min(1, "Vui lòng chọn danh mục"),
   description: z.string().optional(),
   farmerId: z.string().min(1, "Vui lòng chọn nông dân"),
+  isActive: z.boolean().default(true),
   productPrice: z.coerce
     .number()
     .min(15000, "Giá sản phẩm tối thiểu là 15.000đ"),

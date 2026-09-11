@@ -4,14 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { toast } from "sonner";
 import FormHeader from "@/components/back-office/form-header";
-import {
-  ArrayItemsInput,
-  ImageInput,
-  SelectInput,
-  ToggleInput,
-} from "@/components/form-inputs";
+import { ToggleInput } from "@/components/form-inputs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -22,97 +16,56 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { generateSlug } from "@/lib/generate-slug";
-import { uploadFile } from "@/lib/upload-file";
+import { makePostRequest } from "@/lib/api-request";
 import { cn } from "@/lib/utils";
-import { productSchema } from "@/lib/validations/product";
+import { staffSchema } from "@/lib/validations/staff";
 
-const categories = [
-  { id: "1", title: "Danh mục 1" },
-  { id: "2", title: "Danh mục 2" },
-  { id: "3", title: "Danh mục 3" },
-];
-
-const farmers = [
-  { id: "1", title: "Nông dân 1" },
-  { id: "2", title: "Nông dân 2" },
-];
-
-export default function UpdateProductPage() {
+export default function UpdateStaffPage() {
   const { id } = useParams();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [imageFile, setImageFile] = useState(null);
-  const [currentImageUrl] = useState("");
-  const [resetKey, setResetKey] = useState(0);
-  const [tags, setTags] = useState([]);
 
   const form = useForm({
     defaultValues: {
-      barcode: "",
-      categoryId: "",
-      description: "",
-      farmerId: "",
+      email: "",
+      fullName: "",
       isActive: true,
-      productPrice: "",
-      SKU: "",
-      salePrice: "",
-      title: "",
+      notes: "",
+      password: "",
+      phone: "",
+      physicalAddress: "",
     },
-    resolver: zodResolver(productSchema),
+    resolver: zodResolver(staffSchema),
   });
 
   const isActive = useWatch({ control: form.control, name: "isActive" });
 
   async function onSubmit(data) {
-    setIsLoading(true);
-    try {
-      let imageUrl = currentImageUrl;
-      if (imageFile) {
-        imageUrl = await uploadFile(imageFile, "products");
-      }
-
-      const slug = generateSlug(data.title);
-      const productData = { id, ...data, imageUrl, isActive, slug, tags };
-
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-      const response = await fetch(`${baseUrl}/api/products`, {
-        body: JSON.stringify(productData),
-        headers: { "Content-Type": "application/json" },
-        method: "PUT",
-      });
-
-      if (response.ok) {
-        toast.success("Cập nhật sản phẩm thành công!", { duration: 2000 });
-        router.push("/dashboard/products");
-      } else {
-        toast.error("Có lỗi xảy ra khi cập nhật sản phẩm.", {
-          duration: 2000,
-        });
-      }
-    } catch {
-      toast.error("Có lỗi xảy ra khi cập nhật sản phẩm.", { duration: 2000 });
-    } finally {
-      setIsLoading(false);
-    }
+    const payload = { id, ...data, isActive };
+    console.log("Dữ liệu cập nhật:", payload);
+    await makePostRequest({
+      data: payload,
+      endpoint: "api/staff",
+      reset: form.reset,
+      resourceName: "Nhân viên",
+      setLoading: setIsLoading,
+    });
+    router.push("/dashboard/staff");
   }
 
   return (
     <div className="mx-auto max-w-4xl space-y-4">
-      <FormHeader disabled={isLoading} title="Cập nhật sản phẩm" />
+      <FormHeader disabled={isLoading} title="Cập nhật nhân viên" />
       <Card>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
               <Controller
                 control={form.control}
-                name="title"
+                name="fullName"
                 render={({ field, fieldState }) => (
-                  <Field
-                    className="col-span-2"
-                    data-invalid={fieldState.invalid}
-                  >
-                    <FieldLabel htmlFor={field.name}>Tên sản phẩm</FieldLabel>
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Họ và tên</FieldLabel>
                     <Input
                       {...field}
                       aria-invalid={fieldState.invalid}
@@ -122,7 +75,7 @@ export default function UpdateProductPage() {
                       )}
                       disabled={isLoading}
                       id={field.name}
-                      placeholder="Nhập tên sản phẩm"
+                      placeholder="Nhập họ và tên"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -133,10 +86,10 @@ export default function UpdateProductPage() {
 
               <Controller
                 control={form.control}
-                name="SKU"
+                name="password"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Mã SKU</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Mật khẩu</FieldLabel>
                     <Input
                       {...field}
                       aria-invalid={fieldState.invalid}
@@ -146,7 +99,8 @@ export default function UpdateProductPage() {
                       )}
                       disabled={isLoading}
                       id={field.name}
-                      placeholder="Nhập mã SKU"
+                      placeholder="Nhập mật khẩu mới"
+                      type="password"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -157,10 +111,10 @@ export default function UpdateProductPage() {
 
               <Controller
                 control={form.control}
-                name="barcode"
+                name="email"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Mã vạch</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Email</FieldLabel>
                     <Input
                       {...field}
                       aria-invalid={fieldState.invalid}
@@ -170,7 +124,8 @@ export default function UpdateProductPage() {
                       )}
                       disabled={isLoading}
                       id={field.name}
-                      placeholder="Nhập mã vạch"
+                      placeholder="Nhập địa chỉ email"
+                      type="email"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -181,10 +136,10 @@ export default function UpdateProductPage() {
 
               <Controller
                 control={form.control}
-                name="productPrice"
+                name="phone"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Giá sản phẩm</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Số điện thoại</FieldLabel>
                     <Input
                       {...field}
                       aria-invalid={fieldState.invalid}
@@ -194,9 +149,13 @@ export default function UpdateProductPage() {
                       )}
                       disabled={isLoading}
                       id={field.name}
-                      min="15000"
-                      placeholder="0"
-                      type="number"
+                      inputMode="numeric"
+                      maxLength={10}
+                      onChange={(e) =>
+                        field.onChange(e.target.value.replace(/\D/g, ""))
+                      }
+                      pattern="[0-9]*"
+                      placeholder="Nhập số điện thoại"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -207,10 +166,10 @@ export default function UpdateProductPage() {
 
               <Controller
                 control={form.control}
-                name="salePrice"
+                name="physicalAddress"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Giá khuyến mãi</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Địa chỉ</FieldLabel>
                     <Input
                       {...field}
                       aria-invalid={fieldState.invalid}
@@ -220,9 +179,7 @@ export default function UpdateProductPage() {
                       )}
                       disabled={isLoading}
                       id={field.name}
-                      min="0"
-                      placeholder="0"
-                      type="number"
+                      placeholder="Nhập địa chỉ"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -233,64 +190,21 @@ export default function UpdateProductPage() {
 
               <Controller
                 control={form.control}
-                name="categoryId"
+                name="notes"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <SelectInput
-                      errors={fieldState.invalid}
-                      isLoading={isLoading}
-                      label="Chọn danh mục"
-                      name={field.name}
-                      options={categories}
-                      register={field}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Controller
-                control={form.control}
-                name="farmerId"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <SelectInput
-                      errors={fieldState.invalid}
-                      isLoading={isLoading}
-                      label="Chọn nông dân"
-                      name={field.name}
-                      options={farmers}
-                      register={field}
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Controller
-                control={form.control}
-                name="description"
-                render={({ field, fieldState }) => (
-                  <Field
-                    className="col-span-2"
-                    data-invalid={fieldState.invalid}
-                  >
-                    <FieldLabel htmlFor={field.name}>Mô tả sản phẩm</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Ghi chú</FieldLabel>
                     <Textarea
                       {...field}
                       aria-invalid={fieldState.invalid}
                       className={cn(
-                        "min-h-[120px] resize-none",
+                        "min-h-[100px] resize-none",
                         isLoading &&
                           "pointer-events-none cursor-not-allowed opacity-50",
                       )}
                       disabled={isLoading}
                       id={field.name}
-                      placeholder="Nhập mô tả sản phẩm"
+                      placeholder="Nhập ghi chú"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -299,46 +213,29 @@ export default function UpdateProductPage() {
                 )}
               />
 
-              <ArrayItemsInput
-                items={tags}
-                itemTitle="Thẻ"
-                loading={isLoading}
-                setItems={setTags}
-              />
-
               <ToggleInput
-                label="Xuất bản sản phẩm"
+                label="Trạng thái nhân viên"
                 loading={isLoading}
                 name="isActive"
                 register={form.register}
                 value={isActive}
               />
 
-              <ImageInput
-                imageUrl={currentImageUrl}
-                key={resetKey}
-                label="Ảnh sản phẩm"
-                loading={isLoading}
-                maxFileSize={1 * 1024 * 1024}
-                onFileChange={setImageFile}
-              />
-
               <div className="flex justify-end gap-3 pt-4">
                 <Button
+                  className={cn(
+                    isLoading &&
+                      "pointer-events-none cursor-not-allowed opacity-50",
+                  )}
                   disabled={isLoading}
-                  onClick={() => {
-                    form.reset();
-                    setImageFile(null);
-                    setTags([]);
-                    setResetKey((k) => k + 1);
-                  }}
+                  onClick={() => form.reset()}
                   type="button"
                   variant="outline"
                 >
                   Đặt lại
                 </Button>
                 <Button disabled={isLoading} type="submit">
-                  {isLoading ? "Đang cập nhật..." : "Cập nhật sản phẩm"}
+                  {isLoading ? "Đang cập nhật..." : "Cập nhật nhân viên"}
                 </Button>
               </div>
             </FieldGroup>

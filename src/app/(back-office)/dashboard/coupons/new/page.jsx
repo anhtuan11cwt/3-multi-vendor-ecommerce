@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import FormHeader from "@/components/back-office/form-header";
+import { ToggleInput } from "@/components/form-inputs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -27,6 +28,7 @@ export default function NewCouponPage() {
     defaultValues: {
       couponCode: "",
       expiryDate: "",
+      isActive: true,
       title: "",
     },
     resolver: zodResolver(couponSchema),
@@ -34,6 +36,7 @@ export default function NewCouponPage() {
 
   const title = useWatch({ control: form.control, name: "title" });
   const expiryDate = useWatch({ control: form.control, name: "expiryDate" });
+  const isActive = useWatch({ control: form.control, name: "isActive" });
 
   const minDate = new Date().toISOString().split("T")[0];
 
@@ -44,7 +47,7 @@ export default function NewCouponPage() {
 
   async function onSubmit(data) {
     const couponCode = generateCouponCode(data.title, data.expiryDate);
-    const payload = { ...data, couponCode };
+    const payload = { ...data, couponCode, isActive };
     await makePostRequest({
       data: payload,
       endpoint: "api/coupons",
@@ -127,6 +130,14 @@ export default function NewCouponPage() {
                   )}
                 />
               </div>
+
+              <ToggleInput
+                label="Xuất bản mã giảm giá"
+                loading={isLoading}
+                name="isActive"
+                register={form.register}
+                value={isActive}
+              />
 
               <div className="flex justify-end gap-3 pt-4">
                 <Button

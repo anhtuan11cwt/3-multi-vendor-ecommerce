@@ -3,8 +3,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import FormHeader from "@/components/back-office/form-header";
+import { ToggleInput } from "@/components/form-inputs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -29,6 +30,7 @@ export default function NewFarmerPage() {
       contactPerson: "",
       contactPersonPhone: "",
       email: "",
+      isActive: false,
       name: "",
       notes: "",
       paymentTerms: "",
@@ -38,9 +40,11 @@ export default function NewFarmerPage() {
     resolver: zodResolver(farmerSchema),
   });
 
+  const isActive = useWatch({ control: form.control, name: "isActive" });
+
   async function onSubmit(data) {
     const code = generateUserCode("LFF", data.name);
-    const payload = { ...data, code };
+    const payload = { ...data, code, isActive };
 
     await makePostRequest({
       data: payload,
@@ -268,6 +272,14 @@ export default function NewFarmerPage() {
                     )}
                   </Field>
                 )}
+              />
+
+              <ToggleInput
+                label="Trạng thái nông dân"
+                loading={isLoading}
+                name="isActive"
+                register={form.register}
+                value={isActive}
               />
 
               <div className="flex justify-end gap-3 pt-4">

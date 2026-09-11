@@ -10,6 +10,7 @@ export const farmerSchema = z.object({
     .email("Email không hợp lệ")
     .optional()
     .or(z.literal("")),
+  isActive: z.boolean().default(false),
   name: vietnameseNameSchema,
   notes: z.string().trim().optional(),
   paymentTerms: z.string().trim().optional(),

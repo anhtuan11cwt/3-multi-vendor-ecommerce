@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import FormHeader from "@/components/back-office/form-header";
+import { ToggleInput } from "@/components/form-inputs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -27,6 +28,7 @@ export default function UpdateCouponPage() {
     defaultValues: {
       couponCode: "",
       expiryDate: "",
+      isActive: true,
       title: "",
     },
     resolver: zodResolver(couponSchema),
@@ -34,6 +36,7 @@ export default function UpdateCouponPage() {
 
   const title = useWatch({ control: form.control, name: "title" });
   const expiryDate = useWatch({ control: form.control, name: "expiryDate" });
+  const isActive = useWatch({ control: form.control, name: "isActive" });
 
   const previewCode = useMemo(() => {
     if (!title || !expiryDate) return "";
@@ -45,7 +48,7 @@ export default function UpdateCouponPage() {
   async function onSubmit(data) {
     setIsLoading(true);
     try {
-      const payload = { id, ...data };
+      const payload = { id, ...data, isActive };
       console.log("Dữ liệu cập nhật mã giảm giá:", payload);
       toast.success("Cập nhật mã giảm giá thành công!", { duration: 2000 });
       router.push("/dashboard/coupons");
@@ -115,6 +118,14 @@ export default function UpdateCouponPage() {
                   )}
                 />
               </div>
+
+              <ToggleInput
+                label="Xuất bản mã giảm giá"
+                loading={isLoading}
+                name="isActive"
+                register={form.register}
+                value={isActive}
+              />
 
               <div className="flex justify-end gap-3 pt-4">
                 <Button

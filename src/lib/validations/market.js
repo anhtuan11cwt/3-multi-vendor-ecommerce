@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const marketSchema = z.object({
   description: z.string().optional(),
+  isActive: z.boolean().default(true),
   title: z
     .string()
     .min(1, "Tên chợ không được để trống")

@@ -3,13 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import FormHeader from "@/components/back-office/form-header";
 import {
   ArrayItemsInput,
   ImageInput,
   SelectInput,
+  ToggleInput,
 } from "@/components/form-inputs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -50,6 +51,7 @@ export default function NewProductPage() {
       categoryId: "",
       description: "",
       farmerId: "",
+      isActive: true,
       productPrice: "",
       SKU: "",
       salePrice: "",
@@ -57,6 +59,8 @@ export default function NewProductPage() {
     },
     resolver: zodResolver(productSchema),
   });
+
+  const isActive = useWatch({ control: form.control, name: "isActive" });
 
   async function onSubmit(data) {
     setIsLoading(true);
@@ -67,7 +71,7 @@ export default function NewProductPage() {
       }
 
       const slug = generateSlug(data.title);
-      const productData = { ...data, imageUrl, slug, tags };
+      const productData = { ...data, imageUrl, isActive, slug, tags };
 
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
       const response = await fetch(`${baseUrl}/api/products`, {
@@ -300,6 +304,14 @@ export default function NewProductPage() {
                 itemTitle="Thẻ"
                 loading={isLoading}
                 setItems={setTags}
+              />
+
+              <ToggleInput
+                label="Xuất bản sản phẩm"
+                loading={isLoading}
+                name="isActive"
+                register={form.register}
+                value={isActive}
               />
 
               <ImageInput

@@ -7,6 +7,7 @@ export const couponSchema = z.object({
     .string()
     .min(1, "Ngày hết hạn là bắt buộc")
     .refine((val) => val > minDate, "Ngày hết hạn phải lớn hơn ngày hiện tại"),
+  isActive: z.boolean().default(true),
   title: z
     .string()
     .min(1, "Tên chiến dịch không được để trống")
