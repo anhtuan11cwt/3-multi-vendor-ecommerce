@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import db from "@/lib/db";
 import { categoryApiSchema } from "@/lib/validations/category";
 
 export async function POST(request) {
@@ -17,11 +18,9 @@ export async function POST(request) {
       );
     }
 
-    const newCategory = {
-      id: crypto.randomUUID(),
-      ...parsed.data,
-      createdAt: new Date().toISOString(),
-    };
+    const newCategory = await db.category.create({
+      data: parsed.data,
+    });
 
     console.log("Đã tạo danh mục:", newCategory);
 

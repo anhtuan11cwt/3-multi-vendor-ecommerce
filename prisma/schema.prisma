@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Coupon {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  couponCode  String
+  expiryDate  DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Banner {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  link      String?
+  imageUrl  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Training {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  slug        String
+  description String?
+  content     String?
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  categoryId  String?
+  expertId    String?  @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Staff {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  code             String
+  password         String
+  email            String
+  phone            String?
+  physicalAddress  String?
+  cccd            String?
+  dob              DateTime?
+  notes            String?
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Farmer {
+  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  name                 String
+  code                 String
+  email                String?
+  phone                String?
+  physicalAddress      String?
+  contactPerson        String?
+  contactPersonPhone   String?
+  paymentTerms         String?
+  notes                String?
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model Market {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  slug        String?
+  imageUrl    String?
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Category {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  slug        String?
+  imageUrl    String?
+  description String?
+  marketIds   String[]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

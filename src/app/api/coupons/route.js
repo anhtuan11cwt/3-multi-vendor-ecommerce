@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import db from "@/lib/db";
+import { generateISOFormattedDate } from "@/lib/generate-iso-formatted-date";
 import { couponApiSchema } from "@/lib/validations/coupon";
 
 export async function POST(request) {
@@ -17,11 +19,14 @@ export async function POST(request) {
       );
     }
 
-    const newCoupon = {
-      id: crypto.randomUUID(),
-      ...parsed.data,
-      createdAt: new Date().toISOString(),
-    };
+    const { expiryDate, ...rest } = parsed.data;
+
+    const newCoupon = await db.coupon.create({
+      data: {
+        ...rest,
+        expiryDate: generateISOFormattedDate(expiryDate),
+      },
+    });
 
     console.log("Đã tạo mã giảm giá:", newCoupon);
 

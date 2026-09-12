@@ -7,6 +7,7 @@ export async function makePostRequest({
   resourceName,
   reset,
   setImageUrl,
+  redirect,
 }) {
   setLoading(true);
   try {
@@ -23,6 +24,7 @@ export async function makePostRequest({
       });
       reset();
       if (setImageUrl) setImageUrl("");
+      if (redirect) redirect();
     } else {
       toast.error(`Tạo ${resourceName} thất bại`, { duration: 2000 });
     }

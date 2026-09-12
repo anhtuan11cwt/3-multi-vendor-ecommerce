@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -24,9 +25,12 @@ export default function UpdateStaffPage() {
   const { id } = useParams();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(true);
 
   const form = useForm({
     defaultValues: {
+      cccd: "",
+      dob: "",
       email: "",
       fullName: "",
       isActive: true,
@@ -86,10 +90,10 @@ export default function UpdateStaffPage() {
 
               <Controller
                 control={form.control}
-                name="password"
+                name="cccd"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Mật khẩu</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Số CCCD</FieldLabel>
                     <Input
                       {...field}
                       aria-invalid={fieldState.invalid}
@@ -99,9 +103,82 @@ export default function UpdateStaffPage() {
                       )}
                       disabled={isLoading}
                       id={field.name}
-                      placeholder="Nhập mật khẩu mới"
-                      type="password"
+                      inputMode="numeric"
+                      maxLength={12}
+                      onChange={(e) =>
+                        field.onChange(e.target.value.replace(/\D/g, ""))
+                      }
+                      pattern="[0-9]*"
+                      placeholder="Nhập số CCCD (12 số)"
                     />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                control={form.control}
+                name="dob"
+                render={({ field, fieldState }) => {
+                  const maxDate = new Date();
+                  maxDate.setFullYear(maxDate.getFullYear() - 18);
+                  return (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Ngày sinh</FieldLabel>
+                      <Input
+                        {...field}
+                        aria-invalid={fieldState.invalid}
+                        className={cn(
+                          isLoading &&
+                            "pointer-events-none cursor-not-allowed opacity-50",
+                        )}
+                        disabled={isLoading}
+                        id={field.name}
+                        max={maxDate.toISOString().split("T")[0]}
+                        type="date"
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  );
+                }}
+              />
+
+              <Controller
+                control={form.control}
+                name="password"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor={field.name}>Mật khẩu</FieldLabel>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        aria-invalid={fieldState.invalid}
+                        className={cn(
+                          "pr-10",
+                          isLoading &&
+                            "pointer-events-none cursor-not-allowed opacity-50",
+                        )}
+                        disabled={isLoading}
+                        id={field.name}
+                        placeholder="Tối thiểu 8 ký tự, gồm chữ hoa, thường, số và ký tự đặc biệt"
+                        type={showPassword ? "text" : "password"}
+                      />
+                      <button
+                        className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                        onClick={() => setShowPassword((p) => !p)}
+                        type="button"
+                      >
+                        {showPassword ? (
+                          <EyeOff size={18} />
+                        ) : (
+                          <Eye size={18} />
+                        )}
+                      </button>
+                    </div>
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}

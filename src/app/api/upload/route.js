@@ -12,6 +12,7 @@ const FOLDER_MAP = {
   categories: "3-multi-vendor-ecommerce/categories",
   markets: "3-multi-vendor-ecommerce/markets",
   products: "3-multi-vendor-ecommerce/products",
+  trainings: "3-multi-vendor-ecommerce/trainings",
 };
 
 export async function POST(request) {

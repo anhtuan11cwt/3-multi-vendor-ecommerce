@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import db from "@/lib/db";
 import { bannerApiSchema } from "@/lib/validations/banner";
 
 export async function POST(request) {
@@ -17,11 +18,9 @@ export async function POST(request) {
       );
     }
 
-    const newBanner = {
-      id: crypto.randomUUID(),
-      ...parsed.data,
-      createdAt: new Date().toISOString(),
-    };
+    const newBanner = await db.banner.create({
+      data: parsed.data,
+    });
 
     console.log("Đã tạo banner:", newBanner);
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import db from "@/lib/db";
 import { farmerApiSchema } from "@/lib/validations/farmer";
 
 export async function POST(request) {
@@ -17,11 +18,9 @@ export async function POST(request) {
       );
     }
 
-    const newFarmer = {
-      id: crypto.randomUUID(),
-      ...parsed.data,
-      createdAt: new Date().toISOString(),
-    };
+    const newFarmer = await db.farmer.create({
+      data: parsed.data,
+    });
 
     console.log("Đã tạo nông dân:", newFarmer);
 
