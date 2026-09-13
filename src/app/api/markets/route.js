@@ -2,6 +2,17 @@ import { NextResponse } from "next/server";
 import db from "@/lib/db";
 import { marketApiSchema } from "@/lib/validations/market";
 
+export async function GET() {
+  try {
+    const markets = await db.market.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json(markets);
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
 export async function POST(request) {
   try {
     const body = await request.json();
@@ -18,8 +29,13 @@ export async function POST(request) {
       );
     }
 
+    const { logoUrl, ...rest } = parsed.data;
+
     const newMarket = await db.market.create({
-      data: parsed.data,
+      data: {
+        ...rest,
+        imageUrl: logoUrl || null,
+      },
     });
 
     console.log("Đã tạo chợ:", newMarket);

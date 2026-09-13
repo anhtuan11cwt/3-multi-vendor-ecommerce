@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import FormHeader from "@/components/back-office/form-header";
 import {
@@ -27,18 +27,29 @@ import { uploadFile } from "@/lib/upload-file";
 import { cn } from "@/lib/utils";
 import { trainingSchema } from "@/lib/validations/training";
 
-const categories = [
-  { id: "1", title: "Rau củ quả" },
-  { id: "2", title: "Trái cây" },
-  { id: "3", title: "Thực phẩm chế biến" },
-];
-
 export default function NewTrainingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [resetKey, setResetKey] = useState(0);
   const [content, setContent] = useState("");
+  const [categories, setCategories] = useState([]);
   const router = useRouter();
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        const res = await fetch(`${baseUrl}/api/categories`);
+        if (res.ok) {
+          const data = await res.json();
+          setCategories(data.map((c) => ({ id: c.id, title: c.title })));
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải danh mục:", error);
+      }
+    }
+    fetchCategories();
+  }, []);
 
   const form = useForm({
     defaultValues: {

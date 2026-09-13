@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const marketSchema = z.object({
+  categoryIds: z.array(z.string()).optional().default([]),
   description: z.string().optional(),
   isActive: z.boolean().default(true),
   title: z
@@ -11,5 +12,5 @@ export const marketSchema = z.object({
 
 export const marketApiSchema = marketSchema.extend({
   logoUrl: z.string().url("Logo chợ là bắt buộc").optional().or(z.literal("")),
-  slug: z.string().min(1, "Slug không hợp lệ"),
+  slug: z.string().min(1, "Đường dẫn ngắn không hợp lệ"),
 });

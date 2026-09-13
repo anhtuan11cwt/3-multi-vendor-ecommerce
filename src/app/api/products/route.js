@@ -1,5 +1,17 @@
 import { NextResponse } from "next/server";
+import db from "@/lib/db";
 import { productApiSchema } from "@/lib/validations/product";
+
+export async function GET() {
+  try {
+    const products = await db.product.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json(products);
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
 
 export async function POST(request) {
   try {
@@ -17,11 +29,30 @@ export async function POST(request) {
       );
     }
 
-    const newProduct = {
-      id: crypto.randomUUID(),
-      ...parsed.data,
-      createdAt: new Date().toISOString(),
-    };
+    const { SKU, ...rest } = parsed.data;
+
+    const slug = rest.slug;
+
+    const existingProduct = await db.product.findUnique({
+      where: { slug },
+    });
+
+    if (existingProduct) {
+      return NextResponse.json(
+        {
+          message: "Sản phẩm đã tồn tại",
+          status: 409,
+        },
+        { status: 409 },
+      );
+    }
+
+    const newProduct = await db.product.create({
+      data: {
+        ...rest,
+        sku: SKU || null,
+      },
+    });
 
     console.log("Đã tạo sản phẩm:", newProduct);
 
@@ -31,29 +62,6 @@ export async function POST(request) {
       {
         error: error.message,
         message: "Tạo sản phẩm thất bại",
-        status: 500,
-      },
-      { status: 500 },
-    );
-  }
-}
-
-export async function PUT(request) {
-  try {
-    const body = await request.json();
-    const { id, ...updateData } = body;
-
-    console.log("Cập nhật sản phẩm:", { id, ...updateData });
-
-    return NextResponse.json(
-      { id, ...updateData, updatedAt: new Date().toISOString() },
-      { status: 200 },
-    );
-  } catch (error) {
-    return NextResponse.json(
-      {
-        error: error.message,
-        message: "Cập nhật sản phẩm thất bại",
         status: 500,
       },
       { status: 500 },

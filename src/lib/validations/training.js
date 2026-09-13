@@ -6,8 +6,8 @@ export const trainingSchema = z.object({
   isActive: z.boolean().default(true),
   title: z
     .string()
-    .min(1, "Tiêu đề training không được để trống")
-    .max(200, "Tiêu đề training tối đa 200 ký tự"),
+    .min(1, "Tiêu đề bài đào tạo không được để trống")
+    .max(200, "Tiêu đề bài đào tạo tối đa 200 ký tự"),
 });
 
 export const trainingApiSchema = trainingSchema.extend({
@@ -17,5 +17,5 @@ export const trainingApiSchema = trainingSchema.extend({
     .url("Ảnh thumbnail là bắt buộc")
     .optional()
     .or(z.literal("")),
-  slug: z.string().min(1, "Slug không hợp lệ"),
+  slug: z.string().min(1, "Đường dẫn ngắn không hợp lệ"),
 });

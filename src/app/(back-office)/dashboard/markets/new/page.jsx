@@ -2,10 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import FormHeader from "@/components/back-office/form-header";
-import { ImageInput, ToggleInput } from "@/components/form-inputs";
+import { ImageInput, SelectInput, ToggleInput } from "@/components/form-inputs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -26,10 +26,28 @@ export default function NewMarketPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [resetKey, setResetKey] = useState(0);
+  const [categories, setCategories] = useState([]);
   const router = useRouter();
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        const res = await fetch(`${baseUrl}/api/categories`);
+        if (res.ok) {
+          const data = await res.json();
+          setCategories(data.map((c) => ({ id: c.id, title: c.title })));
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải danh mục:", error);
+      }
+    }
+    fetchCategories();
+  }, []);
 
   const form = useForm({
     defaultValues: {
+      categoryIds: [],
       description: "",
       isActive: true,
       title: "",
@@ -105,6 +123,27 @@ export default function NewMarketPage() {
                 loading={isLoading}
                 maxFileSize={1 * 1024 * 1024}
                 onFileChange={setImageFile}
+              />
+
+              <Controller
+                control={form.control}
+                name="categoryIds"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <SelectInput
+                      errors={fieldState.invalid}
+                      isLoading={isLoading}
+                      label="Chọn danh mục"
+                      multiple
+                      name={field.name}
+                      options={categories}
+                      register={field}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
               />
 
               <Controller

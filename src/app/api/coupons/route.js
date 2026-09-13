@@ -3,6 +3,17 @@ import db from "@/lib/db";
 import { generateISOFormattedDate } from "@/lib/generate-iso-formatted-date";
 import { couponApiSchema } from "@/lib/validations/coupon";
 
+export async function GET() {
+  try {
+    const coupons = await db.coupon.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json(coupons);
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
 export async function POST(request) {
   try {
     const body = await request.json();

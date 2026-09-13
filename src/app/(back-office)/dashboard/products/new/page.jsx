@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import FormHeader from "@/components/back-office/form-header";
@@ -27,23 +27,37 @@ import { uploadFile } from "@/lib/upload-file";
 import { cn } from "@/lib/utils";
 import { productSchema } from "@/lib/validations/product";
 
-const categories = [
-  { id: "1", title: "Danh mục 1" },
-  { id: "2", title: "Danh mục 2" },
-  { id: "3", title: "Danh mục 3" },
-];
-
-const farmers = [
-  { id: "1", title: "Nông dân 1" },
-  { id: "2", title: "Nông dân 2" },
-];
-
 export default function NewProductPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [resetKey, setResetKey] = useState(0);
   const [tags, setTags] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [farmers, setFarmers] = useState([]);
   const router = useRouter();
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        const [catRes, farmerRes] = await Promise.all([
+          fetch(`${baseUrl}/api/categories`),
+          fetch(`${baseUrl}/api/farmers`),
+        ]);
+        if (catRes.ok) {
+          const catData = await catRes.json();
+          setCategories(catData.map((c) => ({ id: c.id, title: c.title })));
+        }
+        if (farmerRes.ok) {
+          const farmerData = await farmerRes.json();
+          setFarmers(farmerData.map((f) => ({ id: f.id, title: f.name })));
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải dữ liệu:", error);
+      }
+    }
+    fetchData();
+  }, []);
 
   const form = useForm({
     defaultValues: {

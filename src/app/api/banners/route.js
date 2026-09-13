@@ -2,6 +2,17 @@ import { NextResponse } from "next/server";
 import db from "@/lib/db";
 import { bannerApiSchema } from "@/lib/validations/banner";
 
+export async function GET() {
+  try {
+    const banners = await db.banner.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json(banners);
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
 export async function POST(request) {
   try {
     const body = await request.json();

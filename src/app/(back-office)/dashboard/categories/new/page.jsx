@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import FormHeader from "@/components/back-office/form-header";
-import { ImageInput, SelectInput, ToggleInput } from "@/components/form-inputs";
+import { ImageInput, ToggleInput } from "@/components/form-inputs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -22,14 +22,6 @@ import { uploadFile } from "@/lib/upload-file";
 import { cn } from "@/lib/utils";
 import { categorySchema } from "@/lib/validations/category";
 
-const markets = [
-  { id: "1", title: "Chợ Bến Thành" },
-  { id: "2", title: "Chợ Đông Xuân" },
-  { id: "3", title: "Chợ Lớn" },
-  { id: "4", title: "Chợ Cần Thơ" },
-  { id: "5", title: "Chợ Ratched" },
-];
-
 export default function NewCategoryPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
@@ -40,7 +32,6 @@ export default function NewCategoryPage() {
     defaultValues: {
       description: "",
       isActive: true,
-      marketIds: [],
       title: "",
     },
     resolver: zodResolver(categorySchema),
@@ -106,27 +97,6 @@ export default function NewCategoryPage() {
                       disabled={isLoading}
                       id={field.name}
                       placeholder="Nhập tiêu đề danh mục"
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-
-              <Controller
-                control={form.control}
-                name="marketIds"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid}>
-                    <SelectInput
-                      errors={fieldState.invalid}
-                      isLoading={isLoading}
-                      label="Chọn chợ"
-                      multiple
-                      name={field.name}
-                      options={markets}
-                      register={field}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
