@@ -4,6 +4,7 @@
     "@faker-js/faker": "^10.6.0",
     "@hookform/resolvers": "^5.9.1",
     "@prisma/client": "^5.22.0",
+    "bcrypt": "^6.0.0",
     "chart.js": "^4.5.1",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.11.0",

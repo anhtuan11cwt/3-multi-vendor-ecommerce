@@ -7,9 +7,23 @@ export default function Home() {
       <h2 className="font-bold text-4xl tracking-tight">
         Chào mừng đến với E-Commerce
       </h2>
-      <Link className={buttonVariants({ size: "lg" })} href="/dashboard">
-        Đến Dashboard
-      </Link>
+      <div className="flex flex-wrap justify-center gap-4">
+        <Link className={buttonVariants({ size: "lg" })} href="/register">
+          Đăng ký
+        </Link>
+        <Link
+          className={buttonVariants({ size: "lg", variant: "outline" })}
+          href="/register-farmer"
+        >
+          Trở thành nông dân
+        </Link>
+        <Link
+          className={buttonVariants({ size: "lg", variant: "secondary" })}
+          href="/dashboard"
+        >
+          Dashboard
+        </Link>
+      </div>
     </div>
   );
 }

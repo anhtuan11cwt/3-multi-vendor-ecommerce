@@ -18,6 +18,7 @@ model User {
   id            String         @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   email         String         @unique
+  password      String?
   emailVerified DateTime?
   image         String?
   role          UserRole       @default(USER)
@@ -31,16 +32,20 @@ model FarmerProfile {
   name            String
   code            String
   contactPerson   String?
+  contactPersonPhone String?
   email           String?
   phone           String?
   physicalAddress String?
   notes           String?
   paymentTerms    String?
   profileImageUrl String?
+  landSize        Float?
+  mainCrop        String?
   isActive        Boolean   @default(false)
   userId          String    @unique @db.ObjectId
   user            User      @relation(fields: [userId], references: [id])
-  products        Product[]
+  products        String[]
+  productList     Product[]
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }

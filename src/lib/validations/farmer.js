@@ -2,8 +2,8 @@ import { z } from "zod";
 import { vietnameseNameSchema, vietnamesePhoneSchema } from "./common";
 
 export const farmerSchema = z.object({
-  contactPerson: vietnameseNameSchema.optional().or(z.literal("")),
-  contactPersonPhone: vietnamesePhoneSchema.optional().or(z.literal("")),
+  contactPerson: z.string().trim().optional(),
+  contactPersonPhone: z.string().trim().optional(),
   email: z
     .string()
     .trim()
@@ -11,13 +11,22 @@ export const farmerSchema = z.object({
     .optional()
     .or(z.literal("")),
   isActive: z.boolean().default(false),
+  landSize: z.coerce
+    .number()
+    .positive("Diện tích phải lớn hơn 0")
+    .optional()
+    .or(z.nan()),
+  mainCrop: z.string().trim().optional(),
   name: vietnameseNameSchema,
   notes: z.string().trim().optional(),
   paymentTerms: z.string().trim().optional(),
-  phone: vietnamesePhoneSchema.min(1, "Số điện thoại là bắt buộc"),
+  phone: vietnamesePhoneSchema,
   physicalAddress: z.string().trim().optional(),
+  products: z.array(z.string().trim()).default([]),
+  profileImageUrl: z.string().trim().optional(),
 });
 
 export const farmerApiSchema = farmerSchema.extend({
   code: z.string().min(1, "Mã nông dân không hợp lệ"),
+  userId: z.string().min(1, "User ID không hợp lệ"),
 });

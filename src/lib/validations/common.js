@@ -19,3 +19,14 @@ export const vietnamesePhoneSchema = z
     /^0[35789]\d{8}$/,
     "Số điện thoại phải đúng 10 chữ số, bắt đầu bằng 0 và thuộc đầu số di động hợp lệ (03x, 05x, 07x, 08x, 09x)",
   );
+
+export const passwordSchema = z
+  .string()
+  .trim()
+  .min(1, "Mật khẩu không được để trống")
+  .min(8, "Mật khẩu phải có ít nhất 8 ký tự")
+  .max(20, "Mật khẩu tối đa 20 ký tự")
+  .regex(/[a-z]/, "Mật khẩu phải chứa ít nhất 1 chữ thường")
+  .regex(/[A-Z]/, "Mật khẩu phải chứa ít nhất 1 chữ hoa")
+  .regex(/[0-9]/, "Mật khẩu phải chứa ít nhất 1 chữ số")
+  .regex(/[^a-zA-Z0-9]/, "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt");
