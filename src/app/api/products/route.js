@@ -29,28 +29,67 @@ export async function POST(request) {
       );
     }
 
-    const { SKU, ...rest } = parsed.data;
+    let {
+      SKU,
+      title,
+      slug,
+      description,
+      barcode,
+      farmerId,
+      imageUrl,
+      isActive,
+      isWholesale,
+      productCode,
+      productPrice,
+      salePrice,
+      tags,
+      unit,
+      wholesalePrice,
+      wholesaleQuantity,
+      productStock,
+      quantity,
+      categoryId,
+    } = parsed.data;
 
-    const slug = rest.slug;
-
-    const existingProduct = await db.product.findUnique({
+    let existingProduct = await db.product.findUnique({
       where: { slug },
     });
 
-    if (existingProduct) {
-      return NextResponse.json(
-        {
-          message: "Sản phẩm đã tồn tại",
-          status: 409,
-        },
-        { status: 409 },
-      );
+    let counter = 1;
+    const baseSlug = slug;
+    while (existingProduct) {
+      slug = `${baseSlug}-${counter}`;
+      existingProduct = await db.product.findUnique({
+        where: { slug },
+      });
+      counter++;
     }
 
     const newProduct = await db.product.create({
       data: {
-        ...rest,
+        barcode: barcode || null,
+        categoryId,
+        description: description || null,
+        farmerId,
+        imageUrl: imageUrl || null,
+        isActive,
+        isWholesale,
+        productCode: productCode || null,
+        productPrice: Number.parseFloat(productPrice),
+        productStock: productStock ? Number.parseInt(productStock, 10) : null,
+        quantity: quantity ? Number.parseInt(quantity, 10) : 1,
+        salePrice: salePrice ? Number.parseFloat(salePrice) : null,
         sku: SKU || null,
+        slug,
+        tags: tags || [],
+        title,
+        unit: unit || null,
+        wholesalePrice: wholesalePrice
+          ? Number.parseFloat(wholesalePrice)
+          : null,
+        wholesaleQuantity: wholesaleQuantity
+          ? Number.parseInt(wholesaleQuantity, 10)
+          : null,
       },
     });
 

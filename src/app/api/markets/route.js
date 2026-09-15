@@ -29,12 +29,31 @@ export async function POST(request) {
       );
     }
 
-    const { logoUrl, ...rest } = parsed.data;
+    let { title, slug, logoUrl, isActive, description, categoryIds } =
+      parsed.data;
+
+    let existingMarket = await db.market.findUnique({
+      where: { slug },
+    });
+
+    let counter = 1;
+    const baseSlug = slug;
+    while (existingMarket) {
+      slug = `${baseSlug}-${counter}`;
+      existingMarket = await db.market.findUnique({
+        where: { slug },
+      });
+      counter++;
+    }
 
     const newMarket = await db.market.create({
       data: {
-        ...rest,
+        categoryIds: categoryIds || [],
+        description: description || null,
         imageUrl: logoUrl || null,
+        isActive,
+        slug,
+        title,
       },
     });
 

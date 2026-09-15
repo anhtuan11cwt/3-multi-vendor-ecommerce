@@ -29,12 +29,32 @@ export async function POST(request) {
       );
     }
 
-    const { imageUrl, ...rest } = parsed.data;
+    let { title, slug, isActive, imageUrl, description, content, categoryId } =
+      parsed.data;
+
+    let existingTraining = await db.training.findUnique({
+      where: { slug },
+    });
+
+    let counter = 1;
+    const baseSlug = slug;
+    while (existingTraining) {
+      slug = `${baseSlug}-${counter}`;
+      existingTraining = await db.training.findUnique({
+        where: { slug },
+      });
+      counter++;
+    }
 
     const newTraining = await db.training.create({
       data: {
-        ...rest,
+        categoryId: categoryId || null,
+        content: content || null,
+        description: description || null,
         imageUrl: imageUrl || null,
+        isActive,
+        slug,
+        title,
       },
     });
 

@@ -6,9 +6,12 @@ export const productSchema = z.object({
   description: z.string().optional(),
   farmerId: z.string().min(1, "Vui lòng chọn nông dân"),
   isActive: z.boolean().default(true),
+  isWholesale: z.boolean().default(false),
   productPrice: z.coerce
     .number()
     .min(15000, "Giá sản phẩm tối thiểu là 15.000đ"),
+  productStock: z.coerce.number().min(0).optional(),
+  quantity: z.coerce.number().min(1).default(1),
   SKU: z.string().optional(),
   salePrice: z.coerce
     .number()
@@ -19,6 +22,14 @@ export const productSchema = z.object({
     .string()
     .min(1, "Tên sản phẩm không được để trống")
     .max(100, "Tên sản phẩm tối đa 100 ký tự"),
+  unit: z
+    .enum(["Kg", "Gram", "Lít", "Cái", "Hộp", "Gói", "Bó", "Túi", "Thùng"])
+    .optional(),
+  wholesalePrice: z.coerce
+    .number()
+    .min(15000, "Giá bán buôn tối thiểu là 15.000đ")
+    .optional(),
+  wholesaleQuantity: z.coerce.number().min(1).optional(),
 });
 
 export const productApiSchema = productSchema.extend({
@@ -27,5 +38,6 @@ export const productApiSchema = productSchema.extend({
     .url("Ảnh sản phẩm là bắt buộc")
     .optional()
     .or(z.literal("")),
+  productCode: z.string().optional(),
   slug: z.string().min(1, "Đường dẫn ngắn không hợp lệ"),
 });
