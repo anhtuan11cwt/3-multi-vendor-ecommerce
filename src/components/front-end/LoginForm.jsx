@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -17,62 +17,43 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { passwordSchema, vietnameseNameSchema } from "@/lib/validations/common";
+import { passwordSchema } from "@/lib/validations/common";
 
-const registerSchema = z.object({
+const loginSchema = z.object({
   email: z.string().trim().email("Email không hợp lệ"),
-  name: vietnameseNameSchema,
   password: passwordSchema,
 });
 
-export default function RegisterForm() {
+export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
-  const [emailError, setEmailError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-  const pathname = usePathname();
-  const role = pathname.includes("register-farmer") ? "FARMER" : "USER";
 
   const form = useForm({
     defaultValues: {
       email: "",
-      name: "",
       password: "",
     },
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(loginSchema),
   });
 
   async function onSubmit(data) {
     setIsLoading(true);
-    setEmailError("");
 
     try {
       const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-      const payload = { ...data, role };
 
       const response = await fetch(`${baseURL}/api/users`, {
-        body: JSON.stringify(payload),
+        body: JSON.stringify(data),
         headers: { "Content-Type": "application/json" },
         method: "POST",
       });
 
-      const responseData = await response.json();
-
       if (response.ok) {
-        const userRole = responseData.data?.role || role;
-        const userId = responseData.data?.id;
-
-        toast.success("Tạo tài khoản thành công", { duration: 2000 });
-
-        if (userRole === "FARMER" && userId) {
-          router.push(`/onboarding/${userId}`);
-        } else {
-          router.push("/");
-        }
-      } else if (response.status === 409) {
-        setEmailError("Email đã được sử dụng");
+        toast.success("Đăng nhập thành công", { duration: 2000 });
+        router.push("/");
       } else {
-        toast.error("Đã xảy ra lỗi", { duration: 2000 });
+        toast.error("Email hoặc mật khẩu không đúng", { duration: 2000 });
       }
     } catch {
       toast.error("Đã xảy ra lỗi", { duration: 2000 });
@@ -84,31 +65,6 @@ export default function RegisterForm() {
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
-        <input name="role" type="hidden" value={role} />
-
-        <Controller
-          control={form.control}
-          name="name"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Họ và tên</FieldLabel>
-              <Input
-                {...field}
-                aria-invalid={fieldState.invalid}
-                className={cn(
-                  isLoading &&
-                    "pointer-events-none cursor-not-allowed opacity-50",
-                )}
-                disabled={isLoading}
-                id={field.name}
-                placeholder="Nhập họ và tên"
-                type="text"
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
-
         <Controller
           control={form.control}
           name="email"
@@ -119,6 +75,7 @@ export default function RegisterForm() {
                 {...field}
                 aria-invalid={fieldState.invalid}
                 className={cn(
+                  "p-2",
                   isLoading &&
                     "pointer-events-none cursor-not-allowed opacity-50",
                 )}
@@ -128,9 +85,6 @@ export default function RegisterForm() {
                 type="email"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              {emailError && (
-                <p className="mt-1 text-red-600 text-sm">{emailError}</p>
-              )}
             </Field>
           )}
         />
@@ -146,7 +100,7 @@ export default function RegisterForm() {
                   {...field}
                   aria-invalid={fieldState.invalid}
                   className={cn(
-                    "pr-10",
+                    "p-2 pr-10",
                     isLoading &&
                       "pointer-events-none cursor-not-allowed opacity-50",
                   )}
@@ -173,62 +127,43 @@ export default function RegisterForm() {
           )}
         />
 
-        <div className="pt-4">
+        <div className="pt-2">
           <Button
             className={cn(
-              "w-full",
+              "w-full p-2",
               isLoading && "pointer-events-none cursor-not-allowed opacity-50",
             )}
             disabled={isLoading}
             type="submit"
           >
-            {isLoading ? "Đang đăng ký..." : "Đăng ký"}
+            {isLoading ? "Đang đăng nhập..." : "Đăng nhập"}
           </Button>
         </div>
 
         <p className="text-center text-slate-600 text-sm dark:text-slate-400">
-          Đã có tài khoản?{" "}
+          Chưa có tài khoản?{" "}
           <Link
             className={cn(
               "font-medium text-lime-600 hover:underline dark:text-lime-400",
               isLoading &&
                 "pointer-events-none cursor-not-allowed opacity-50 hover:no-underline",
             )}
-            href="/login"
+            href="/register"
           >
-            Đăng nhập
+            Đăng ký
+          </Link>{" "}
+          hoặc{" "}
+          <Link
+            className={cn(
+              "font-medium text-lime-600 hover:underline dark:text-lime-400",
+              isLoading &&
+                "pointer-events-none cursor-not-allowed opacity-50 hover:no-underline",
+            )}
+            href="/register-farmer"
+          >
+            Đăng ký làm nông dân
           </Link>
         </p>
-
-        {role === "USER" ? (
-          <p className="text-center text-slate-600 text-sm dark:text-slate-400">
-            Muốn bán hàng?{" "}
-            <Link
-              className={cn(
-                "font-medium text-lime-600 hover:underline dark:text-lime-400",
-                isLoading &&
-                  "pointer-events-none cursor-not-allowed opacity-50 hover:no-underline",
-              )}
-              href="/register-farmer"
-            >
-              Đăng ký làm nông dân
-            </Link>
-          </p>
-        ) : (
-          <p className="text-center text-slate-600 text-sm dark:text-slate-400">
-            Chỉ muốn mua hàng?{" "}
-            <Link
-              className={cn(
-                "font-medium text-lime-600 hover:underline dark:text-lime-400",
-                isLoading &&
-                  "pointer-events-none cursor-not-allowed opacity-50 hover:no-underline",
-              )}
-              href="/register"
-            >
-              Tạo tài khoản thường
-            </Link>
-          </p>
-        )}
       </FieldGroup>
     </form>
   );
