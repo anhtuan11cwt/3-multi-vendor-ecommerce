@@ -61,7 +61,7 @@ export default function HeroCarousel() {
 
       <button
         aria-label="Slide trước"
-        className="absolute top-1/2 left-2 z-10 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white transition hover:bg-black/60"
+        className="absolute top-1/2 left-2 z-10 hidden -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white transition hover:bg-black/60 md:block"
         onClick={scrollPrev}
         type="button"
       >
@@ -70,7 +70,7 @@ export default function HeroCarousel() {
 
       <button
         aria-label="Slide tiếp theo"
-        className="absolute top-1/2 right-2 z-10 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white transition hover:bg-black/60"
+        className="absolute top-1/2 right-2 z-10 hidden -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white transition hover:bg-black/60 md:block"
         onClick={scrollNext}
         type="button"
       >

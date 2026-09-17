@@ -24,10 +24,20 @@ export default function Navbar() {
     };
   }, [mobileOpen]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setMobileOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <>
       <header className="sticky top-0 z-30 border-b bg-white dark:bg-slate-800">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-2 py-2 sm:gap-4 sm:px-4 sm:py-3">
           <div className="flex items-center gap-2">
             <Link
               className="shrink-0"
@@ -54,15 +64,6 @@ export default function Navbar() {
                 width={120}
               />
             </Link>
-
-            <button
-              className="rounded-md p-2 text-slate-600 hover:bg-slate-100 md:hidden dark:text-slate-300 dark:hover:bg-slate-700"
-              onClick={() => setMobileOpen((prev) => !prev)}
-              type="button"
-            >
-              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-              <span className="sr-only">Menu</span>
-            </button>
           </div>
 
           <form className="hidden flex-1 items-center gap-2 md:flex">
@@ -81,11 +82,20 @@ export default function Navbar() {
             </div>
           </form>
 
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-0 sm:gap-1">
             <ThemeSwitcherBtn />
 
+            <button
+              className="rounded-md p-1.5 text-slate-600 hover:bg-slate-100 sm:p-2 md:hidden dark:text-slate-300 dark:hover:bg-slate-700"
+              onClick={() => setMobileOpen((prev) => !prev)}
+              type="button"
+            >
+              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+              <span className="sr-only">Menu</span>
+            </button>
+
             <Link
-              className="relative rounded-md p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="relative hidden rounded-md p-2 text-slate-600 hover:bg-slate-100 sm:block dark:text-slate-300 dark:hover:bg-slate-700"
               href="/login"
             >
               <User size={20} />
@@ -93,7 +103,7 @@ export default function Navbar() {
             </Link>
 
             <button
-              className="relative rounded-full bg-slate-100 p-2 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
+              className="relative hidden rounded-full bg-slate-100 p-2 text-slate-600 hover:bg-slate-200 sm:block dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
               onClick={() => setHelpOpen(true)}
               type="button"
             >
@@ -102,7 +112,7 @@ export default function Navbar() {
             </button>
 
             <Link
-              className="relative rounded-md p-2 text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="relative hidden rounded-md p-2 text-slate-600 hover:bg-slate-100 sm:block dark:text-slate-300 dark:hover:bg-slate-700"
               href="/cart"
             >
               <ShoppingCart size={20} />
@@ -117,7 +127,7 @@ export default function Navbar() {
           </div>
         </div>
 
-        <form className="flex items-center gap-2 px-4 pb-3 md:hidden">
+        <form className="flex items-center gap-2 px-2 pb-3 sm:px-4 md:hidden">
           <div className="relative flex flex-1 items-center">
             <input
               className="w-full rounded-md border border-gray-300 bg-gray-50 py-2 pr-10 pl-3 text-sm outline-none focus:border-lime-500 focus:ring-1 focus:ring-lime-500 dark:border-gray-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder:text-slate-400"
@@ -142,7 +152,7 @@ export default function Navbar() {
             onClick={() => setMobileOpen(false)}
             type="button"
           />
-          <div className="absolute inset-y-0 left-0 w-3/4 max-w-sm bg-white shadow-xl dark:bg-slate-800">
+          <div className="absolute inset-y-0 left-0 w-full max-w-xs bg-white shadow-xl sm:w-3/4 dark:bg-slate-800">
             <div className="flex items-center justify-between border-gray-200 border-b p-4 dark:border-gray-600">
               <Image
                 alt="GreenCart"
@@ -160,7 +170,7 @@ export default function Navbar() {
               </button>
             </div>
 
-            <div className="h-full overflow-y-auto p-4">
+            <div className="h-full overflow-y-auto p-2 sm:p-4">
               <div className="mb-6">
                 <h3 className="mb-3 font-bold text-slate-800 dark:text-slate-100">
                   Danh mục
@@ -168,14 +178,14 @@ export default function Navbar() {
                 <div className="space-y-1">
                   {categories.map((category) => (
                     <Link
-                      className="flex items-center gap-3 rounded-md px-3 py-2 text-slate-700 text-sm transition-all duration-300 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
+                      className="flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-all duration-300 hover:bg-slate-50 sm:gap-3 sm:px-3 sm:py-2 sm:text-sm dark:text-slate-300 dark:hover:bg-slate-700"
                       href={`/category/${category.path}`}
                       key={category.path}
                       onClick={() => setMobileOpen(false)}
                     >
                       <Image
                         alt={category.text}
-                        className="h-8 w-8 rounded-full object-cover"
+                        className="h-6 w-6 rounded-full object-cover sm:h-8 sm:w-8"
                         height={40}
                         src={category.image}
                         width={40}
@@ -188,6 +198,17 @@ export default function Navbar() {
 
               <div className="border-gray-200 border-t pt-4 dark:border-gray-600">
                 <div className="space-y-2">
+                  <button
+                    className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-slate-700 text-sm hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
+                    onClick={() => {
+                      setMobileOpen(false);
+                      setHelpOpen(true);
+                    }}
+                    type="button"
+                  >
+                    <HelpCircle size={20} />
+                    <span>Trợ giúp</span>
+                  </button>
                   <Link
                     className="flex items-center gap-3 rounded-md px-3 py-2 text-slate-700 text-sm hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
                     href="/login"

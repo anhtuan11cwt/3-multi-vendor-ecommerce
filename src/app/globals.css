@@ -136,3 +136,9 @@
     @apply font-sans;
   }
 }
+
+@media (max-width: 767px) {
+  .react-multiple-carousel__arrow {
+    display: none;
+  }
+}
