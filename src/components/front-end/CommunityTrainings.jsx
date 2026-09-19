@@ -1,11 +1,14 @@
 import Link from "next/link";
+import { getData } from "@/lib/getData";
 import TrainingCarousel from "./TrainingCarousel";
 
-export default function CommunityTrainings() {
+export default async function CommunityTrainings() {
+  const trainings = await getData("trainings");
+
   return (
     <section className="py-8">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="font-bold text-2xl text-slate-900 dark:text-slate-100">
+        <h2 className="font-bold text-2xl text-lime-600 dark:text-lime-500">
           Đào tạo cộng đồng
         </h2>
         <Link
@@ -15,7 +18,7 @@ export default function CommunityTrainings() {
           Xem tất cả
         </Link>
       </div>
-      <TrainingCarousel />
+      <TrainingCarousel trainings={trainings} />
     </section>
   );
 }

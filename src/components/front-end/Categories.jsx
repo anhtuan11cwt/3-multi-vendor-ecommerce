@@ -1,11 +1,11 @@
 import Link from "next/link";
 import CategoryCarousel from "./CategoryCarousel";
 
-export default function Categories() {
+export default function Categories({ categories = [] }) {
   return (
     <section className="py-8">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="font-bold text-2xl text-slate-900 dark:text-slate-100">
+        <h2 className="font-bold text-2xl text-lime-600 dark:text-lime-500">
           Danh mục sản phẩm
         </h2>
         <Link
@@ -15,7 +15,14 @@ export default function Categories() {
           Xem tất cả
         </Link>
       </div>
-      <CategoryCarousel />
+      {categories.map((category, index) => (
+        <div className="mb-8" key={category.id ?? index}>
+          <h3 className="mb-3 font-semibold text-lg text-slate-800 dark:text-slate-200">
+            {category.title}
+          </h3>
+          <CategoryCarousel products={category.products} />
+        </div>
+      ))}
     </section>
   );
 }

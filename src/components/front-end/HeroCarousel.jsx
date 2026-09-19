@@ -6,14 +6,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-const banners = [
-  { alt: "Banner rau củ tươi", href: "/", src: "/banners/1.png" },
-  { alt: "Banner giao hàng nhanh", href: "/", src: "/banners/3.png" },
-];
-
 const AUTOPLAY_INTERVAL = 3000;
 
-export default function HeroCarousel() {
+export default function HeroCarousel({ banners = [] }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -43,14 +38,14 @@ export default function HeroCarousel() {
       <div className="overflow-hidden rounded-md" ref={emblaRef}>
         <div className="flex">
           {banners.map((banner, index) => (
-            <div className="min-w-0 flex-[0_0_100%]" key={banner.src}>
-              <Link href={banner.href}>
+            <div className="min-w-0 flex-[0_0_100%]" key={banner.id ?? index}>
+              <Link href={banner.link ?? "/"}>
                 <Image
-                  alt={banner.alt}
+                  alt={banner.title}
                   className="h-auto w-full object-cover"
                   height={384}
                   priority={index === 0}
-                  src={banner.src}
+                  src={banner.imageUrl}
                   width={712}
                 />
               </Link>
@@ -84,7 +79,7 @@ export default function HeroCarousel() {
             className={`h-2 rounded-full transition-all ${
               index === selectedIndex ? "w-4 bg-white" : "w-2 bg-white/50"
             }`}
-            key={banner.src}
+            key={banner.id ?? index}
             onClick={() => scrollTo(index)}
             type="button"
           />

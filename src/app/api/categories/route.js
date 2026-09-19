@@ -5,6 +5,7 @@ import { categoryApiSchema } from "@/lib/validations/category";
 export async function GET() {
   try {
     const categories = await db.category.findMany({
+      include: { products: true },
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(categories);

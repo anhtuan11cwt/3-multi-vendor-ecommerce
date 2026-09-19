@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import ThemeSwitcherBtn from "@/components/theme-switcher-btn";
 import { Badge } from "@/components/ui/badge";
-import { categories } from "./CategorySidebar";
+import { categories } from "@/lib/categories-data";
 import HelpModal from "./HelpModal";
 
 export default function Navbar() {
