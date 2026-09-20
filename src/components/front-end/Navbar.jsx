@@ -7,11 +7,14 @@ import { useEffect, useState } from "react";
 import ThemeSwitcherBtn from "@/components/theme-switcher-btn";
 import { Badge } from "@/components/ui/badge";
 import { categories } from "@/lib/categories-data";
+import { useAppSelector } from "@/store/hooks";
 import HelpModal from "./HelpModal";
 
 export default function Navbar() {
   const [helpOpen, setHelpOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const cartItems = useAppSelector((state) => state.cart.cartItems);
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   useEffect(() => {
     if (mobileOpen) {
@@ -120,7 +123,7 @@ export default function Navbar() {
                 className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px]"
                 variant="destructive"
               >
-                0
+                {cartCount}
               </Badge>
               <span className="sr-only">Giỏ hàng</span>
             </Link>

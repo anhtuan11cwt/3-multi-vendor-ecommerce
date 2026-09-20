@@ -5,7 +5,7 @@ import { BsCart3 } from "react-icons/bs";
 export default function ProductCard({ product }) {
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-slate-900">
-      <Link href={`/product/${product.slug}`}>
+      <Link href={`/products/${product.slug}`}>
         <div className="relative h-32 w-full overflow-hidden sm:h-40 md:h-48">
           <Image
             alt={product.title}
