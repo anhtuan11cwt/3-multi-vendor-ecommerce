@@ -1,7 +1,29 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import PageHeader from "@/components/back-office/page-header";
-import TableActions from "@/components/back-office/table-actions";
+import { getData } from "@/lib/getData";
+import { columns } from "./columns";
+import DataTable from "./data-table";
 
 export default function CategoriesPage() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const result = await getData("categories");
+        setData(result);
+      } catch (error) {
+        console.error("Lỗi khi tải danh mục:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -9,12 +31,13 @@ export default function CategoriesPage() {
         href="/dashboard/categories/new"
         linkTitle="Thêm danh mục"
       />
-      <TableActions />
-      <div className="rounded-lg border bg-white p-6 shadow-sm dark:bg-slate-800">
-        <p className="text-slate-500 dark:text-slate-400">
-          Bảng dữ liệu danh mục sẽ hiển thị ở đây.
-        </p>
-      </div>
+      {loading ? (
+        <div className="rounded-md border p-8 text-center text-muted-foreground">
+          Đang tải dữ liệu...
+        </div>
+      ) : (
+        <DataTable columns={columns} data={data} />
+      )}
     </div>
   );
 }
