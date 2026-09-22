@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import PageHeader from "@/components/back-office/page-header";
+import DataTable from "@/components/data-table/data-table";
 import { getData } from "@/lib/getData";
 import { columns } from "./columns";
-import DataTable from "./data-table";
 
 export default function CategoriesPage() {
   const [data, setData] = useState([]);
@@ -36,7 +36,17 @@ export default function CategoriesPage() {
           Đang tải dữ liệu...
         </div>
       ) : (
-        <DataTable columns={columns} data={data} />
+        <DataTable
+          columnLabels={{
+            createdAt: "Ngày tạo",
+            description: "Mô tả",
+            imageUrl: "Hình ảnh",
+            isActive: "Trạng thái",
+            title: "Tiêu đề",
+          }}
+          columns={columns}
+          data={data}
+        />
       )}
     </div>
   );

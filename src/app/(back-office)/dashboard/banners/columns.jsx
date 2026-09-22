@@ -50,7 +50,7 @@ export const columns = [
       const imageUrl = row.getValue("imageUrl");
       return imageUrl ? (
         <Image
-          alt="Danh mục"
+          alt="Banner"
           className="rounded-md object-cover"
           height={40}
           src={imageUrl}
@@ -58,16 +58,16 @@ export const columns = [
         />
       ) : null;
     },
-    header: "Hình ảnh",
+    header: "Hình ảnh banner",
   },
   {
-    accessorKey: "description",
+    accessorKey: "link",
     cell: ({ row }) => (
       <div className="max-w-[120px] truncate text-xs sm:max-w-[200px] sm:text-sm">
-        {row.getValue("description")}
+        {row.getValue("link")}
       </div>
     ),
-    header: "Mô tả",
+    header: "Liên kết banner",
   },
   {
     accessorKey: "isActive",
@@ -102,7 +102,7 @@ export const columns = [
   },
   {
     cell: ({ row }) => {
-      const category = row.original;
+      const banner = row.original;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger className="inline-flex h-8 w-8 items-center justify-center rounded-md p-0 font-medium text-muted-foreground text-sm hover:bg-muted hover:text-foreground">
@@ -111,12 +111,12 @@ export const columns = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(category.id)}
+              onClick={() => navigator.clipboard.writeText(banner.id)}
             >
               Sao chép ID
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Link href={`/dashboard/categories/update/${category.id}`}>
+              <Link href={`/dashboard/banners/update/${banner.id}`}>
                 Chỉnh sửa
               </Link>
             </DropdownMenuItem>
