@@ -1,16 +1,10 @@
 "use client";
 
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import ActionColumn from "@/components/data-table/data-table-columns/action-column";
+import DateColumn from "@/components/data-table/data-table-columns/date-column";
+import ImageColumn from "@/components/data-table/data-table-columns/image-column";
+import SortableColumn from "@/components/data-table/data-table-columns/sortable-column";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 export const columns = [
   {
@@ -32,42 +26,12 @@ export const columns = [
   },
   {
     accessorKey: "title",
-    header: ({ column }) => {
-      return (
-        <Button
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          variant="ghost"
-        >
-          Tiêu đề
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => <SortableColumn column={column} title="Tiêu đề" />,
   },
   {
     accessorKey: "imageUrl",
-    cell: ({ row }) => {
-      const imageUrl = row.getValue("imageUrl");
-      return imageUrl ? (
-        <Image
-          alt="Banner"
-          className="rounded-md object-cover"
-          height={40}
-          src={imageUrl}
-          width={40}
-        />
-      ) : null;
-    },
+    cell: ({ row }) => <ImageColumn accessorKey="imageUrl" row={row} />,
     header: "Hình ảnh banner",
-  },
-  {
-    accessorKey: "link",
-    cell: ({ row }) => (
-      <div className="max-w-[120px] truncate text-xs sm:max-w-[200px] sm:text-sm">
-        {row.getValue("link")}
-      </div>
-    ),
-    header: "Liên kết banner",
   },
   {
     accessorKey: "isActive",
@@ -89,42 +53,13 @@ export const columns = [
   },
   {
     accessorKey: "createdAt",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("createdAt"));
-      const day = date.getDate();
-      const month = date.toLocaleString("vi-VN", { month: "short" });
-      const year = date.getFullYear();
-      return (
-        <div className="text-xs sm:text-sm">{`${day} ${month} ${year}`}</div>
-      );
-    },
+    cell: ({ row }) => <DateColumn accessorKey="createdAt" row={row} />,
     header: "Ngày tạo",
   },
   {
-    cell: ({ row }) => {
-      const banner = row.original;
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger className="inline-flex h-8 w-8 items-center justify-center rounded-md p-0 font-medium text-muted-foreground text-sm hover:bg-muted hover:text-foreground">
-            <span className="sr-only">Mở menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(banner.id)}
-            >
-              Sao chép ID
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link href={`/dashboard/banners/update/${banner.id}`}>
-                Chỉnh sửa
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem variant="destructive">Xóa</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    cell: ({ row }) => (
+      <ActionColumn route="banners" row={row} title="banner" />
+    ),
     enableHiding: false,
     id: "actions",
   },

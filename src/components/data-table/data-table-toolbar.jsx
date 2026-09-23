@@ -15,9 +15,9 @@ export default function DataTableToolbar({
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-1 items-center gap-2">
+      <div className="flex min-w-0 flex-1 items-center gap-2">
         <Input
-          className="h-8 max-w-full sm:max-w-sm"
+          className="h-8 min-w-0 max-w-full sm:max-w-sm"
           onChange={(event) =>
             table.getColumn(searchColumn)?.setFilterValue(event.target.value)
           }

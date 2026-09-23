@@ -58,7 +58,7 @@ export const columns = [
   },
   {
     cell: ({ row }) => (
-      <ActionColumn route="categories" row={row} title="danh mục" />
+      <ActionColumn route="products" row={row} title="sản phẩm" />
     ),
     enableHiding: false,
     id: "actions",
