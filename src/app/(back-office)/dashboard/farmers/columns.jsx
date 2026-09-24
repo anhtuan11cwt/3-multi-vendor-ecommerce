@@ -2,7 +2,6 @@
 
 import ActionColumn from "@/components/data-table/data-table-columns/action-column";
 import DateColumn from "@/components/data-table/data-table-columns/date-column";
-import ImageColumn from "@/components/data-table/data-table-columns/image-column";
 import SortableColumn from "@/components/data-table/data-table-columns/sortable-column";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -25,13 +24,22 @@ export const columns = [
     id: "select",
   },
   {
-    accessorKey: "title",
-    header: ({ column }) => <SortableColumn column={column} title="Tiêu đề" />,
+    accessorKey: "name",
+    header: ({ column }) => (
+      <SortableColumn column={column} title="Tên nông dân" />
+    ),
   },
   {
-    accessorKey: "imageUrl",
-    cell: ({ row }) => <ImageColumn accessorKey="imageUrl" row={row} />,
-    header: "Hình ảnh",
+    accessorKey: "code",
+    header: "Mã nông dân",
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
+  },
+  {
+    accessorKey: "phone",
+    header: "Số điện thoại",
   },
   {
     accessorKey: "isActive",
@@ -59,10 +67,10 @@ export const columns = [
   {
     cell: ({ row }) => (
       <ActionColumn
-        endpoint={`categories/${row.original.id}`}
-        route="categories"
+        endpoint={`farmers/${row.original.id}`}
+        route="farmers"
         row={row}
-        title="danh mục"
+        title="nông dân"
       />
     ),
     enableHiding: false,

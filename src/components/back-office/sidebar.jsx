@@ -34,7 +34,7 @@ const catalogLinks = [
   { href: "/dashboard/products", icon: Package, label: "Sản phẩm" },
   { href: "/dashboard/categories", icon: Tags, label: "Danh mục" },
   { href: "/dashboard/coupons", icon: Ticket, label: "Mã giảm giá" },
-  { href: "/dashboard/banners", icon: ImageIcon, label: "Store Banners" },
+  { href: "/dashboard/banners", icon: ImageIcon, label: "Banner cửa hàng" },
 ];
 
 const navLinks = [

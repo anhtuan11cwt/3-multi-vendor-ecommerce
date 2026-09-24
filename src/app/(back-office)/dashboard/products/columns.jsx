@@ -58,7 +58,12 @@ export const columns = [
   },
   {
     cell: ({ row }) => (
-      <ActionColumn route="products" row={row} title="sản phẩm" />
+      <ActionColumn
+        endpoint={`products/${row.original.id}`}
+        route="products"
+        row={row}
+        title="sản phẩm"
+      />
     ),
     enableHiding: false,
     id: "actions",

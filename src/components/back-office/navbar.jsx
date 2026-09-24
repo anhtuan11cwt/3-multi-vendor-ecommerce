@@ -45,7 +45,7 @@ export default function Navbar() {
             <div className="flex gap-3 px-2 py-2">
               <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
                 <Image
-                  alt="avatar"
+                  alt="ảnh đại diện"
                   className="h-full w-full object-cover"
                   height={36}
                   src="/profile_icon.png"
@@ -72,7 +72,7 @@ export default function Navbar() {
             <div className="flex gap-3 px-2 py-2">
               <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
                 <Image
-                  alt="avatar"
+                  alt="ảnh đại diện"
                   className="h-full w-full object-cover"
                   height={36}
                   src="/profile_icon.png"

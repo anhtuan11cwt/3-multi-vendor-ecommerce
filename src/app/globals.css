@@ -142,3 +142,10 @@
     display: none;
   }
 }
+
+@media (max-width: 360px) {
+  body {
+    --swal2-padding: 0.75rem;
+    --swal2-width: calc(100vw - 1rem);
+  }
+}

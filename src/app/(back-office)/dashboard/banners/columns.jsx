@@ -58,7 +58,12 @@ export const columns = [
   },
   {
     cell: ({ row }) => (
-      <ActionColumn route="banners" row={row} title="banner" />
+      <ActionColumn
+        endpoint={`banners/${row.original.id}`}
+        route="banners"
+        row={row}
+        title="banner"
+      />
     ),
     enableHiding: false,
     id: "actions",

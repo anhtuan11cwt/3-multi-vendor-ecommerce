@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { deleteCloudinaryImage } from "@/lib/cloudinary";
 import db from "@/lib/db";
 
 export async function GET(_request, { params }) {
@@ -119,6 +120,34 @@ export async function PUT(request, { params }) {
         message: "Cập nhật sản phẩm thất bại",
         status: 500,
       },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(_request, { params }) {
+  try {
+    const { id } = await params;
+
+    const existingProduct = await db.product.findUnique({ where: { id } });
+
+    if (!existingProduct) {
+      return NextResponse.json(
+        { message: "Không tìm thấy sản phẩm" },
+        { status: 404 },
+      );
+    }
+
+    const deletedProduct = await db.product.delete({ where: { id } });
+
+    await deleteCloudinaryImage(deletedProduct.imageUrl);
+
+    console.log("Đã xóa sản phẩm:", deletedProduct);
+
+    return NextResponse.json(deletedProduct);
+  } catch (error) {
+    return NextResponse.json(
+      { error: error.message, message: "Không thể xóa sản phẩm" },
       { status: 500 },
     );
   }
