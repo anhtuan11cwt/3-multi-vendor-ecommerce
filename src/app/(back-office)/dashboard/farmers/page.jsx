@@ -44,6 +44,7 @@ export default function FarmersPage() {
             isActive: "Trạng thái",
             name: "Tên nông dân",
             phone: "Số điện thoại",
+            role: "Vai trò",
           }}
           columns={columns}
           data={data}

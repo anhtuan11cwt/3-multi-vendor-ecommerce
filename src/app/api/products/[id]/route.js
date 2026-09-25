@@ -112,6 +112,13 @@ export async function PUT(request, { params }) {
 
     console.log("Đã cập nhật sản phẩm:", updatedProduct);
 
+    if (
+      existingProduct.imageUrl &&
+      existingProduct.imageUrl !== updatedProduct.imageUrl
+    ) {
+      await deleteCloudinaryImage(existingProduct.imageUrl);
+    }
+
     return NextResponse.json(updatedProduct);
   } catch (error) {
     return NextResponse.json(

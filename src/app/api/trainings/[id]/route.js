@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { deleteCloudinaryImage } from "@/lib/cloudinary";
 import db from "@/lib/db";
 
 export async function GET(_request, { params }) {
@@ -74,6 +75,13 @@ export async function PUT(request, { params }) {
     });
 
     console.log("Đã cập nhật bài đào tạo:", updatedTraining);
+
+    if (
+      existingTraining.imageUrl &&
+      existingTraining.imageUrl !== updatedTraining.imageUrl
+    ) {
+      await deleteCloudinaryImage(existingTraining.imageUrl);
+    }
 
     return NextResponse.json(updatedTraining);
   } catch (error) {

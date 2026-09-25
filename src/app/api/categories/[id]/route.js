@@ -23,6 +23,50 @@ export async function GET(_request, { params }) {
   }
 }
 
+export async function PUT(request, { params }) {
+  try {
+    const { id } = await params;
+    const { title, slug, imageUrl, description, isActive } =
+      await request.json();
+
+    const existingCategory = await db.category.findUnique({ where: { id } });
+
+    if (!existingCategory) {
+      return NextResponse.json(
+        { message: "Không tìm thấy danh mục" },
+        { status: 404 },
+      );
+    }
+
+    const updatedCategory = await db.category.update({
+      data: {
+        description,
+        imageUrl,
+        isActive,
+        slug,
+        title,
+      },
+      where: { id },
+    });
+
+    console.log("Đã cập nhật danh mục:", updatedCategory.id);
+
+    if (
+      existingCategory.imageUrl &&
+      existingCategory.imageUrl !== updatedCategory.imageUrl
+    ) {
+      await deleteCloudinaryImages([existingCategory.imageUrl]);
+    }
+
+    return NextResponse.json(updatedCategory);
+  } catch (error) {
+    return NextResponse.json(
+      { error: error.message, message: "Không thể cập nhật danh mục" },
+      { status: 500 },
+    );
+  }
+}
+
 export async function DELETE(_request, { params }) {
   try {
     const { id } = await params;

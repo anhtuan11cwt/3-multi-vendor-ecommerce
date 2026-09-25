@@ -8,6 +8,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+function getColumnLabel(column, columnLabels) {
+  const id = column.id;
+  const key = id.includes(".") ? id.slice(id.lastIndexOf(".") + 1) : id;
+  const header = column.columnDef?.header;
+  return (
+    columnLabels[id] ??
+    columnLabels[key] ??
+    (typeof header === "string" ? header : undefined) ??
+    key
+  );
+}
+
 export default function DataTableViewOptions({ table, columnLabels = {} }) {
   return (
     <DropdownMenu>
@@ -15,7 +27,7 @@ export default function DataTableViewOptions({ table, columnLabels = {} }) {
         <Settings2 className="mr-2 h-4 w-4" />
         Hiển thị
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[150px]">
+      <DropdownMenuContent align="end" className="min-w-44 whitespace-nowrap">
         {table
           .getAllColumns()
           .filter(
@@ -29,7 +41,7 @@ export default function DataTableViewOptions({ table, columnLabels = {} }) {
                 key={column.id}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {columnLabels[column.id] ?? column.id}
+                {getColumnLabel(column, columnLabels)}
               </DropdownMenuCheckboxItem>
             );
           })}

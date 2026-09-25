@@ -5,7 +5,10 @@ import MarketList from "@/components/front-end/MarketList";
 import { getData } from "@/lib/getData";
 
 export default async function Home() {
-  const categories = await getData("categories");
+  const categoriesData = await getData("categories");
+  const categories = (
+    Array.isArray(categoriesData) ? categoriesData : []
+  ).filter((category) => (category.products?.length ?? 0) > 3);
 
   return (
     <>

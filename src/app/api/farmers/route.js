@@ -4,9 +4,10 @@ import { farmerApiSchema } from "@/lib/validations/farmer";
 
 export async function GET() {
   try {
-    const farmers = await db.farmerProfile.findMany({
-      include: { user: true },
+    const farmers = await db.user.findMany({
+      include: { farmerProfile: true },
       orderBy: { createdAt: "desc" },
+      where: { role: "FARMER" },
     });
     return NextResponse.json({
       data: farmers,

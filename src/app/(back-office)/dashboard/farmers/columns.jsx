@@ -30,7 +30,7 @@ export const columns = [
     ),
   },
   {
-    accessorKey: "code",
+    accessorKey: "farmerProfile.code",
     header: "Mã nông dân",
   },
   {
@@ -38,13 +38,17 @@ export const columns = [
     header: "Email",
   },
   {
-    accessorKey: "phone",
+    accessorKey: "farmerProfile.phone",
     header: "Số điện thoại",
   },
   {
-    accessorKey: "isActive",
+    accessorKey: "role",
+    header: "Vai trò",
+  },
+  {
+    accessorKey: "farmerProfile.isActive",
     cell: ({ row }) => {
-      const isActive = row.getValue("isActive");
+      const isActive = row.getValue("farmerProfile.isActive");
       return (
         <span
           className={`inline-flex items-center rounded-full px-2.5 py-0.5 font-medium text-xs ${
@@ -67,6 +71,7 @@ export const columns = [
   {
     cell: ({ row }) => (
       <ActionColumn
+        editEndpoint={`farmers/update/${row.original.id}`}
         endpoint={`farmers/${row.original.id}`}
         route="farmers"
         row={row}

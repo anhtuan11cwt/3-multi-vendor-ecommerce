@@ -62,6 +62,7 @@ export const columns = [
   {
     cell: ({ row }) => (
       <ActionColumn
+        editEndpoint={`coupons/update/${row.original.id}`}
         endpoint={`coupons/${row.original.id}`}
         route="coupons"
         row={row}

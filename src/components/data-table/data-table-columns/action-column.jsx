@@ -1,6 +1,6 @@
 import { MoreHorizontal } from "lucide-react";
-import Link from "next/link";
 import DeleteBtn from "@/components/actions/delete-btn";
+import EditBtn from "@/components/actions/edit-btn";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,7 +8,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function ActionColumn({ endpoint, row, route, title }) {
+export default function ActionColumn({
+  editEndpoint,
+  endpoint,
+  row,
+  route,
+  title,
+}) {
   const item = row.original;
   return (
     <DropdownMenu>
@@ -18,9 +24,10 @@ export default function ActionColumn({ endpoint, row, route, title }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-44 whitespace-nowrap">
         <DropdownMenuItem>
-          <Link href={`/dashboard/${route}/update/${item.id}`}>
-            Chỉnh sửa {title}
-          </Link>
+          <EditBtn
+            editEndpoint={editEndpoint ?? `${route}/update/${item.id}`}
+            title={title}
+          />
         </DropdownMenuItem>
         <DropdownMenuItem variant="destructive">
           <DeleteBtn
