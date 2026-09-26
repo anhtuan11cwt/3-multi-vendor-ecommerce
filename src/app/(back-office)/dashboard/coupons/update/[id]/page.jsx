@@ -2,9 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { toast } from "sonner";
 import FormHeader from "@/components/back-office/form-header";
 import { ToggleInput } from "@/components/form-inputs";
 import { Button } from "@/components/ui/button";
@@ -16,8 +15,11 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { makePutRequest } from "@/lib/api-request";
 import { generateCouponCode } from "@/lib/generate-coupon-code";
-import { couponSchema } from "@/lib/validations/coupon";
+import { getData } from "@/lib/getData";
+import { couponUpdateSchema } from "@/lib/validations/coupon";
+import { convertISODateToNormal } from "../../convert-iso-date-to-normal";
 
 export default function UpdateCouponPage() {
   const { id } = useParams();
@@ -31,8 +33,30 @@ export default function UpdateCouponPage() {
       isActive: true,
       title: "",
     },
-    resolver: zodResolver(couponSchema),
+    resolver: zodResolver(couponUpdateSchema),
   });
+
+  useEffect(() => {
+    async function fetchCoupon() {
+      try {
+        const coupon = await getData(`coupons/${id}`);
+        if (!coupon?.id) {
+          router.push("/dashboard/coupons");
+          return;
+        }
+
+        form.reset({
+          couponCode: coupon.couponCode || "",
+          expiryDate: convertISODateToNormal(coupon.expiryDate),
+          isActive: coupon.isActive ?? true,
+          title: coupon.title || "",
+        });
+      } catch {
+        router.push("/dashboard/coupons");
+      }
+    }
+    if (id) fetchCoupon();
+  }, [id, form, router]);
 
   const title = useWatch({ control: form.control, name: "title" });
   const expiryDate = useWatch({ control: form.control, name: "expiryDate" });
@@ -43,22 +67,21 @@ export default function UpdateCouponPage() {
     return generateCouponCode(title, expiryDate);
   }, [title, expiryDate]);
 
-  const minDate = new Date().toISOString().split("T")[0];
-
   async function onSubmit(data) {
-    setIsLoading(true);
-    try {
-      const payload = { id, ...data, isActive };
-      console.log("Dữ liệu cập nhật mã giảm giá:", payload);
-      toast.success("Cập nhật mã giảm giá thành công!", { duration: 2000 });
-      router.push("/dashboard/coupons");
-    } catch {
-      toast.error("Có lỗi xảy ra khi cập nhật mã giảm giá.", {
-        duration: 2000,
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    const payload = {
+      ...data,
+      couponCode: previewCode || data.couponCode,
+      id,
+      isActive,
+    };
+
+    await makePutRequest({
+      data: payload,
+      endpoint: `api/coupons/${id}`,
+      redirect: () => router.push("/dashboard/coupons"),
+      resourceName: "mã giảm giá",
+      setLoading: setIsLoading,
+    });
   }
 
   return (
@@ -108,7 +131,6 @@ export default function UpdateCouponPage() {
                         {...field}
                         aria-invalid={fieldState.invalid}
                         id={field.name}
-                        min={minDate}
                         type="date"
                       />
                       {fieldState.invalid && (

@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import { toast } from "sonner";
 import FormHeader from "@/components/back-office/form-header";
 import { ImageInput, SelectInput, ToggleInput } from "@/components/form-inputs";
 import { Button } from "@/components/ui/button";
@@ -67,7 +68,7 @@ export default function UpdateTrainingForm({ training, categories }) {
       };
 
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-      const response = await fetch(`${baseUrl}/api/trainings`, {
+      const response = await fetch(`${baseUrl}/api/trainings/${training.id}`, {
         body: JSON.stringify(payload),
         headers: { "Content-Type": "application/json" },
         method: "PUT",

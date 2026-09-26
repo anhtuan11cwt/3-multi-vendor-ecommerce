@@ -22,7 +22,7 @@ export default function ActionColumn({
         <span className="sr-only">Mở menu</span>
         <MoreHorizontal className="h-4 w-4" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-44 whitespace-nowrap">
+      <DropdownMenuContent align="end" className="min-w-64 whitespace-nowrap">
         <DropdownMenuItem>
           <EditBtn
             editEndpoint={editEndpoint ?? `${route}/update/${item.id}`}

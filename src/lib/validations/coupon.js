@@ -17,3 +17,13 @@ export const couponSchema = z.object({
 export const couponApiSchema = couponSchema.extend({
   couponCode: z.string().min(1, "Mã giảm giá không hợp lệ"),
 });
+
+export const couponUpdateSchema = couponSchema
+  .omit({ expiryDate: true })
+  .extend({
+    expiryDate: z.string().min(1, "Ngày hết hạn là bắt buộc"),
+  });
+
+export const couponUpdateApiSchema = couponUpdateSchema.extend({
+  couponCode: z.string().min(1, "Mã giảm giá không hợp lệ"),
+});

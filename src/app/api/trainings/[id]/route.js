@@ -32,6 +32,38 @@ export async function GET(_request, { params }) {
   }
 }
 
+export async function DELETE(_request, { params }) {
+  try {
+    const { id } = await params;
+
+    const existingTraining = await db.training.findUnique({
+      where: { id },
+    });
+
+    if (!existingTraining) {
+      return NextResponse.json(
+        { message: "Không tìm thấy bài đào tạo" },
+        { status: 404 },
+      );
+    }
+
+    const deletedTraining = await db.training.delete({ where: { id } });
+
+    if (deletedTraining.imageUrl) {
+      await deleteCloudinaryImage(deletedTraining.imageUrl);
+    }
+
+    console.log("Đã xóa bài đào tạo:", deletedTraining);
+
+    return NextResponse.json(deletedTraining);
+  } catch (error) {
+    return NextResponse.json(
+      { error: error.message, message: "Không thể xóa bài đào tạo" },
+      { status: 500 },
+    );
+  }
+}
+
 export async function PUT(request, { params }) {
   try {
     const { id } = await params;
