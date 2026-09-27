@@ -1,5 +1,9 @@
+import { render } from "@react-email/render";
 import bcrypt from "bcrypt";
 import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
+import { v4 as uuidv4 } from "uuid";
+import EmailTemplate from "@/components/EmailTemplate";
 import db from "@/lib/db";
 import { registerSchema } from "@/lib/validations/user";
 
@@ -39,16 +43,49 @@ export async function POST(request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const rawToken = uuidv4();
+    const encodedToken = Buffer.from(rawToken).toString("base64url");
+
     const newUser = await db.user.create({
       data: {
         email,
         name,
         password: hashedPassword,
         role,
+        verificationToken: encodedToken,
       },
     });
 
     console.log("Đã tạo người dùng mới:", newUser.id);
+
+    if (role === "FARMER") {
+      try {
+        const redirectUrl = `/onboarding/${newUser.id}?token=${encodedToken}`;
+        const transporter = nodemailer.createTransport({
+          auth: {
+            pass: process.env.GMAIL_APP_PASSWORD,
+            user: process.env.GMAIL_USER,
+          },
+          service: "gmail",
+        });
+        const html = await render(
+          EmailTemplate({
+            linkText: "Xác thực tài khoản",
+            name,
+            redirectUrl,
+          }),
+        );
+        await transporter.sendMail({
+          from: process.env.EMAIL_FROM || process.env.GMAIL_USER,
+          html,
+          subject: "Xác thực tài khoản",
+          to: email,
+        });
+        console.log("Đã gửi email xác thực:", newUser.id);
+      } catch (mailError) {
+        console.log("Không thể gửi email xác thực:", mailError.message);
+      }
+    }
 
     return NextResponse.json(
       {
@@ -79,6 +116,7 @@ export async function GET() {
       select: {
         createdAt: true,
         email: true,
+        emailVerified: true,
         id: true,
         image: true,
         name: true,

@@ -63,7 +63,27 @@ export async function POST(request) {
 
     let farmerUserId = userId;
 
-    if (!farmerUserId) {
+    if (farmerUserId) {
+      const user = await db.user.findUnique({
+        where: { id: farmerUserId },
+      });
+
+      if (!user) {
+        return NextResponse.json(
+          {
+            data: null,
+            message: "Không tìm thấy người dùng",
+            status: 404,
+          },
+          { status: 404 },
+        );
+      }
+
+      await db.user.update({
+        data: { emailVerified: true },
+        where: { id: farmerUserId },
+      });
+    } else {
       const user = await db.user.create({
         data: {
           email: email || `${code}@farmer.local`,

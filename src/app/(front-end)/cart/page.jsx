@@ -10,27 +10,27 @@ export default function CartPage() {
   const cartItems = useAppSelector((state) => state.cart.cartItems);
 
   const subtotal = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + Number(item.price) * Number(item.quantity),
     0,
   );
   const shipping = cartItems.length > 0 ? 15000 : 0;
   const tax = 0;
-  const total = subtotal + shipping + tax;
+  const total = Number(subtotal) + Number(shipping) + Number(tax);
 
   if (cartItems.length === 0) {
     return (
       <div>
         <Breadcrumb />
-        <div className="flex flex-col items-center justify-center py-20">
-          <ShoppingCart className="mb-4 h-16 w-16 text-slate-300 dark:text-slate-600" />
-          <h2 className="mb-2 font-bold text-2xl text-slate-800 dark:text-slate-100">
+        <div className="flex flex-col items-center justify-center px-2 py-12 sm:py-20">
+          <ShoppingCart className="mb-4 h-12 w-12 text-slate-300 sm:h-16 sm:w-16 dark:text-slate-600" />
+          <h2 className="mb-2 text-center font-bold text-slate-800 text-xl sm:text-2xl dark:text-slate-100">
             Giỏ hàng trống
           </h2>
-          <p className="mb-6 text-slate-500 dark:text-slate-400">
+          <p className="mb-6 text-center text-slate-500 dark:text-slate-400">
             Bạn chưa thêm sản phẩm nào vào giỏ hàng.
           </p>
           <Link
-            className="rounded-lg bg-lime-600 px-6 py-3 font-medium text-white transition-colors hover:bg-lime-700"
+            className="rounded-lg bg-lime-600 px-5 py-3 text-center font-medium text-sm text-white transition-colors hover:bg-lime-700 sm:px-6 sm:text-base"
             href="/"
           >
             Tiếp tục mua sắm
@@ -44,15 +44,15 @@ export default function CartPage() {
     <div>
       <Breadcrumb />
 
-      <h1 className="mb-6 font-bold text-2xl text-slate-800 dark:text-slate-100">
+      <h1 className="mb-4 font-bold text-slate-800 text-xl sm:mb-6 sm:text-2xl dark:text-slate-100">
         Giỏ hàng của bạn
       </h1>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-        {/* Left: cart items */}
+      <div className="grid grid-cols-1 gap-4 sm:gap-8 lg:grid-cols-12">
+        {/* Cột trái: danh sách sản phẩm */}
         <div className="lg:col-span-8">
-          {/* Table - desktop */}
-          <div className="hidden rounded-xl border border-slate-200 bg-white p-4 lg:block dark:border-slate-700 dark:bg-slate-800">
+          {/* Bảng — máy tính */}
+          <div className="hidden rounded-xl border border-slate-200 bg-white p-2 sm:p-4 lg:block dark:border-slate-700 dark:bg-slate-800">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-slate-200 border-b dark:border-slate-700">
@@ -76,21 +76,21 @@ export default function CartPage() {
             </table>
           </div>
 
-          {/* Cards - mobile */}
+          {/* Thẻ — điện thoại */}
           <div className="flex flex-col gap-3 lg:hidden">
             {cartItems.map((item) => (
               <CartItem item={item} key={item.id} mobile />
             ))}
           </div>
 
-          <div className="mt-4 flex items-center gap-3">
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <input
-              className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-lime-500 focus:ring-1 focus:ring-lime-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
+              className="w-full flex-1 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-lime-500 focus:ring-1 focus:ring-lime-500 sm:w-auto dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
               placeholder="Nhập mã giảm giá"
               type="text"
             />
             <button
-              className="shrink-0 rounded-lg bg-orange-500 px-6 py-2.5 font-medium text-sm text-white transition-colors hover:bg-orange-600"
+              className="w-full shrink-0 rounded-lg bg-orange-500 px-6 py-2.5 font-medium text-sm text-white transition-colors hover:bg-orange-600 sm:w-auto"
               type="button"
             >
               Áp dụng
@@ -98,9 +98,9 @@ export default function CartPage() {
           </div>
         </div>
 
-        {/* Right: order summary */}
+        {/* Cột phải: tổng đơn hàng */}
         <div className="lg:col-span-4">
-          <div className="sticky top-24 rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
+          <div className="sticky top-24 rounded-xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-700 dark:bg-slate-800">
             <h2 className="mb-4 font-semibold text-lg text-slate-800 dark:text-slate-100">
               Tổng đơn hàng
             </h2>

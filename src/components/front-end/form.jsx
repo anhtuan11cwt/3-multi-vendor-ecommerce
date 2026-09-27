@@ -60,12 +60,11 @@ export default function RegisterForm() {
 
       if (response.ok) {
         const userRole = responseData.data?.role || role;
-        const userId = responseData.data?.id;
 
         toast.success("Tạo tài khoản thành công", { duration: 2000 });
 
-        if (userRole === "FARMER" && userId) {
-          router.push(`/onboarding/${userId}`);
+        if (userRole === "FARMER") {
+          router.push("/verify-email");
         } else {
           router.push("/");
         }
@@ -186,49 +185,51 @@ export default function RegisterForm() {
           </Button>
         </div>
 
-        <p className="text-center text-slate-600 text-sm dark:text-slate-400">
-          Đã có tài khoản?{" "}
-          <Link
-            className={cn(
-              "font-medium text-lime-600 hover:underline dark:text-lime-400",
-              isLoading &&
-                "pointer-events-none cursor-not-allowed opacity-50 hover:no-underline",
-            )}
-            href="/login"
-          >
-            Đăng nhập
-          </Link>
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-[0.75rem]">
+          <p className="min-w-0 break-words text-slate-600 dark:text-slate-400">
+            Đã có tài khoản?{" "}
+            <Link
+              className={cn(
+                "font-medium text-lime-600 hover:underline dark:text-lime-400",
+                isLoading &&
+                  "pointer-events-none cursor-not-allowed opacity-50 hover:no-underline",
+              )}
+              href="/login"
+            >
+              Đăng nhập
+            </Link>
+          </p>
 
-        {role === "USER" ? (
-          <p className="text-center text-slate-600 text-sm dark:text-slate-400">
-            Muốn bán hàng?{" "}
-            <Link
-              className={cn(
-                "font-medium text-lime-600 hover:underline dark:text-lime-400",
-                isLoading &&
-                  "pointer-events-none cursor-not-allowed opacity-50 hover:no-underline",
-              )}
-              href="/register-farmer"
-            >
-              Đăng ký làm nông dân
-            </Link>
-          </p>
-        ) : (
-          <p className="text-center text-slate-600 text-sm dark:text-slate-400">
-            Chỉ muốn mua hàng?{" "}
-            <Link
-              className={cn(
-                "font-medium text-lime-600 hover:underline dark:text-lime-400",
-                isLoading &&
-                  "pointer-events-none cursor-not-allowed opacity-50 hover:no-underline",
-              )}
-              href="/register"
-            >
-              Tạo tài khoản thường
-            </Link>
-          </p>
-        )}
+          {role === "USER" ? (
+            <p className="min-w-0 break-words text-right text-slate-600 dark:text-slate-400">
+              Muốn bán hàng?{" "}
+              <Link
+                className={cn(
+                  "font-medium text-lime-600 hover:underline dark:text-lime-400",
+                  isLoading &&
+                    "pointer-events-none cursor-not-allowed opacity-50 hover:no-underline",
+                )}
+                href="/register-farmer"
+              >
+                Đăng ký làm nông dân
+              </Link>
+            </p>
+          ) : (
+            <p className="min-w-0 break-words text-right text-slate-600 dark:text-slate-400">
+              Chỉ muốn mua hàng?{" "}
+              <Link
+                className={cn(
+                  "font-medium text-lime-600 hover:underline dark:text-lime-400",
+                  isLoading &&
+                    "pointer-events-none cursor-not-allowed opacity-50 hover:no-underline",
+                )}
+                href="/register"
+              >
+                Tạo tài khoản thường
+              </Link>
+            </p>
+          )}
+        </div>
       </FieldGroup>
     </form>
   );

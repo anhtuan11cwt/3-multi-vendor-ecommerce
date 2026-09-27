@@ -105,7 +105,7 @@ export default function NewFarmerForm({ user }) {
         toast.success("Hồ sơ nông dân đã được tạo thành công", {
           duration: 2000,
         });
-        router.push("/dashboard/farmers");
+        router.push("/login");
       } else {
         toast.error("Tạo hồ sơ thất bại", { duration: 2000 });
       }
@@ -378,9 +378,10 @@ export default function NewFarmerForm({ user }) {
           onFileChange={setImageUrl}
         />
 
-        <div className="flex justify-end gap-3 pt-4">
+        <div className="flex flex-col gap-2 pt-4 sm:flex-row sm:justify-end sm:gap-3">
           <Button
             className={cn(
+              "w-full sm:w-auto",
               isLoading && "pointer-events-none cursor-not-allowed opacity-50",
             )}
             disabled={isLoading}
@@ -390,7 +391,11 @@ export default function NewFarmerForm({ user }) {
           >
             Đặt lại
           </Button>
-          <Button disabled={isLoading} type="submit">
+          <Button
+            className={cn("w-full sm:w-auto", isLoading && "opacity-50")}
+            disabled={isLoading}
+            type="submit"
+          >
             {isLoading ? "Đang lưu..." : "Hoàn tất"}
           </Button>
         </div>

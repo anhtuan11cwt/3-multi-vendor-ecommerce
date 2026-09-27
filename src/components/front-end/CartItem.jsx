@@ -58,11 +58,11 @@ export default function CartItem({ item, mobile = false }) {
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-medium text-slate-800 text-sm dark:text-slate-100">
+            <p className="break-words font-medium text-slate-800 text-sm dark:text-slate-100">
               {item.title}
             </p>
             <p className="mt-1 font-bold text-lime-600 text-sm dark:text-lime-400">
-              {item.price.toLocaleString("vi-VN")}đ
+              {Number(item.price).toLocaleString("vi-VN")}đ
             </p>
           </div>
           <AlertDialog onOpenChange={setOpen} open={open}>
@@ -92,7 +92,7 @@ export default function CartItem({ item, mobile = false }) {
             </AlertDialogContent>
           </AlertDialog>
         </div>
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
           <div className="inline-flex items-center rounded-lg border border-slate-300 dark:border-slate-600">
             <button
               className="flex h-8 w-8 items-center justify-center text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
@@ -112,8 +112,11 @@ export default function CartItem({ item, mobile = false }) {
               <Plus size={14} />
             </button>
           </div>
-          <span className="font-bold text-slate-800 text-sm dark:text-slate-100">
-            {(item.price * item.quantity).toLocaleString("vi-VN")}đ
+          <span className="whitespace-nowrap font-bold text-slate-800 text-sm dark:text-slate-100">
+            {(Number(item.price) * Number(item.quantity)).toLocaleString(
+              "vi-VN",
+            )}
+            đ
           </span>
         </div>
       </div>
@@ -172,7 +175,8 @@ export default function CartItem({ item, mobile = false }) {
       {/* Cột 3: Giá */}
       <td className="py-4 text-right">
         <span className="font-bold text-slate-800 text-sm dark:text-slate-100">
-          {(item.price * item.quantity).toLocaleString("vi-VN")}đ
+          {(Number(item.price) * Number(item.quantity)).toLocaleString("vi-VN")}
+          đ
         </span>
       </td>
 

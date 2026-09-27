@@ -15,16 +15,28 @@ enum UserRole {
 }
 
 model User {
-  id            String         @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  email         String         @unique
-  password      String?
-  emailVerified DateTime?
-  image         String?
-  role          UserRole       @default(USER)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  farmerProfile FarmerProfile?
+  id                String         @id @default(auto()) @map("_id") @db.ObjectId
+  name              String
+  email             String         @unique
+  password          String?
+  emailVerified     Boolean        @default(false)
+  verificationToken String?
+  image             String?
+  role              UserRole       @default(USER)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  farmerProfile     FarmerProfile?
+  profile           UserProfile?
+}
+
+model UserProfile {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String    @unique @db.ObjectId
+  user        User      @relation(fields: [userId], references: [id])
+  dateOfBirth DateTime?
+  address     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model FarmerProfile {
