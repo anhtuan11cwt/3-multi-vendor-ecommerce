@@ -7,7 +7,9 @@ export default function FrontEndLayout({ children }) {
     <ReduxProvider>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
         <Navbar />
-        <main className="mx-auto max-w-7xl px-4 py-6">{children}</main>
+        <main className="mx-auto max-w-7xl px-3 py-5 sm:px-4 sm:py-6">
+          {children}
+        </main>
         <Footer />
       </div>
     </ReduxProvider>

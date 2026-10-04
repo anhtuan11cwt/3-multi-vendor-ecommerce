@@ -61,12 +61,14 @@ export default function RegisterForm() {
       if (response.ok) {
         const userRole = responseData.data?.role || role;
 
-        toast.success("Tạo tài khoản thành công", { duration: 2000 });
-
         if (userRole === "FARMER") {
+          toast.success("Tạo tài khoản thành công", { duration: 2000 });
           router.push("/verify-email");
         } else {
-          router.push("/");
+          toast.success("Tạo tài khoản thành công, vui lòng đăng nhập", {
+            duration: 3000,
+          });
+          router.push("/login");
         }
       } else if (response.status === 409) {
         setEmailError("Email đã được sử dụng");

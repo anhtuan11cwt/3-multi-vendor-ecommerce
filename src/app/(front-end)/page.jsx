@@ -1,10 +1,15 @@
+import { getServerSession } from "next-auth";
 import Categories from "@/components/front-end/Categories";
 import CommunityTrainings from "@/components/front-end/CommunityTrainings";
 import Hero from "@/components/front-end/Hero";
 import MarketList from "@/components/front-end/MarketList";
+import { authOptions } from "@/lib/authOptions";
 import { getData } from "@/lib/getData";
 
 export default async function Home() {
+  const session = await getServerSession(authOptions);
+  console.log("Thông tin phiên đăng nhập", session?.user);
+
   const categoriesData = await getData("categories");
   const categories = (
     Array.isArray(categoriesData) ? categoriesData : []

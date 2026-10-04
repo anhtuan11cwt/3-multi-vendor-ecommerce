@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -41,19 +42,17 @@ export default function LoginForm() {
     setIsLoading(true);
 
     try {
-      const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-
-      const response = await fetch(`${baseURL}/api/users`, {
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" },
-        method: "POST",
+      const result = await signIn("credentials", {
+        ...data,
+        redirect: false,
       });
 
-      if (response.ok) {
+      if (result?.error) {
+        toast.error("Email hoặc mật khẩu không đúng", { duration: 2000 });
+      } else {
         toast.success("Đăng nhập thành công", { duration: 2000 });
         router.push("/");
-      } else {
-        toast.error("Email hoặc mật khẩu không đúng", { duration: 2000 });
+        router.refresh();
       }
     } catch {
       toast.error("Đã xảy ra lỗi", { duration: 2000 });
@@ -64,7 +63,7 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
-      <FieldGroup>
+      <FieldGroup className="gap-5 min-[400px]:gap-7">
         <Controller
           control={form.control}
           name="email"
@@ -100,7 +99,7 @@ export default function LoginForm() {
                   {...field}
                   aria-invalid={fieldState.invalid}
                   className={cn(
-                    "p-2 pr-10",
+                    "p-2 pr-11",
                     isLoading &&
                       "pointer-events-none cursor-not-allowed opacity-50",
                   )}
@@ -110,8 +109,9 @@ export default function LoginForm() {
                   type={showPassword ? "text" : "password"}
                 />
                 <button
+                  aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                   className={cn(
-                    "absolute top-1/2 right-2 -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200",
+                    "absolute top-1/2 right-2 -translate-y-1/2 rounded-md p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200",
                     isLoading &&
                       "pointer-events-none cursor-not-allowed opacity-50 hover:text-slate-500 dark:hover:text-slate-400",
                   )}
@@ -127,7 +127,7 @@ export default function LoginForm() {
           )}
         />
 
-        <div className="pt-2">
+        <div className="pt-4 min-[400px]:pt-5">
           <Button
             className={cn(
               "w-full p-2",
@@ -140,7 +140,7 @@ export default function LoginForm() {
           </Button>
         </div>
 
-        <p className="text-center text-slate-600 text-sm dark:text-slate-400">
+        <p className="text-balance break-words text-center text-slate-600 text-sm leading-relaxed dark:text-slate-400">
           Chưa có tài khoản?{" "}
           <Link
             className={cn(
