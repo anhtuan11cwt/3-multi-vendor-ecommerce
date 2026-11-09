@@ -127,6 +127,19 @@ export default function LoginForm() {
           )}
         />
 
+        <div className="text-right">
+          <Link
+            className={cn(
+              "font-medium text-lime-600 hover:underline dark:text-lime-400",
+              isLoading &&
+                "pointer-events-none cursor-not-allowed opacity-50 hover:no-underline",
+            )}
+            href="/forgot-password"
+          >
+            Quên mật khẩu?
+          </Link>
+        </div>
+
         <div className="pt-4 min-[400px]:pt-5">
           <Button
             className={cn(

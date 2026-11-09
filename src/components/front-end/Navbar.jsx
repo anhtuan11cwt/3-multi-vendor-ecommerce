@@ -1,9 +1,22 @@
 "use client";
 
-import { HelpCircle, Menu, Search, ShoppingCart, User, X } from "lucide-react";
+import {
+  HelpCircle,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Search,
+  ShoppingCart,
+  User,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import Loading from "@/app/loading";
+import UserAvatar from "@/components/back-office/user-avatar";
 import ThemeSwitcherBtn from "@/components/theme-switcher-btn";
 import { Badge } from "@/components/ui/badge";
 import { categories } from "@/lib/categories-data";
@@ -15,6 +28,14 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const cartItems = useAppSelector((state) => state.cart.cartItems);
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  async function handleLogout() {
+    await signOut({ redirect: false });
+    router.push("/");
+    router.refresh();
+  }
 
   useEffect(() => {
     if (mobileOpen) {
@@ -36,6 +57,8 @@ export default function Navbar() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  if (status === "loading") return <Loading />;
 
   return (
     <>
@@ -89,21 +112,29 @@ export default function Navbar() {
             <ThemeSwitcherBtn />
 
             <button
-              className="rounded-md p-1.5 text-slate-600 hover:bg-slate-100 sm:p-2 md:hidden dark:text-slate-300 dark:hover:bg-slate-700"
+              className="rounded-md p-2 text-slate-600 hover:bg-slate-100 sm:p-2.5 md:hidden dark:text-slate-300 dark:hover:bg-slate-700"
               onClick={() => setMobileOpen((prev) => !prev)}
               type="button"
             >
               {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-              <span className="sr-only">Menu</span>
+              <span className="sr-only">
+                {mobileOpen ? "Đóng menu" : "Mở menu"}
+              </span>
             </button>
 
-            <Link
-              className="relative hidden rounded-md p-2 text-slate-600 hover:bg-slate-100 sm:block dark:text-slate-300 dark:hover:bg-slate-700"
-              href="/login"
-            >
-              <User size={20} />
-              <span className="sr-only">Đăng nhập</span>
-            </Link>
+            {status === "authenticated" ? (
+              <div className="hidden sm:block">
+                <UserAvatar user={session?.user} />
+              </div>
+            ) : (
+              <Link
+                className="relative hidden rounded-md p-2 text-slate-600 hover:bg-slate-100 sm:block dark:text-slate-300 dark:hover:bg-slate-700"
+                href="/login"
+              >
+                <User size={20} />
+                <span className="sr-only">Đăng nhập</span>
+              </Link>
+            )}
 
             <button
               className="relative hidden rounded-full bg-slate-100 p-2 text-slate-600 hover:bg-slate-200 sm:block dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
@@ -212,22 +243,56 @@ export default function Navbar() {
                     <HelpCircle size={20} />
                     <span>Trợ giúp</span>
                   </button>
-                  <Link
-                    className="flex items-center gap-3 rounded-md px-3 py-2 text-slate-700 text-sm hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
-                    href="/login"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    <User size={20} />
-                    <span>Đăng nhập</span>
-                  </Link>
-                  <Link
-                    className="flex items-center gap-3 rounded-md px-3 py-2 text-slate-700 text-sm hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
-                    href="/register"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    <User size={20} />
-                    <span>Đăng ký</span>
-                  </Link>
+                  {status === "authenticated" ? (
+                    <>
+                      <Link
+                        className="flex items-center gap-3 rounded-md px-3 py-2 text-slate-700 text-sm hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
+                        href="/dashboard"
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        <LayoutDashboard size={20} />
+                        <span>Bảng điều khiển</span>
+                      </Link>
+                      <Link
+                        className="flex items-center gap-3 rounded-md px-3 py-2 text-slate-700 text-sm hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
+                        href="/dashboard/profile"
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        <User size={20} />
+                        <span>Hồ sơ</span>
+                      </Link>
+                      <button
+                        className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-slate-700 text-sm hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
+                        onClick={() => {
+                          setMobileOpen(false);
+                          handleLogout();
+                        }}
+                        type="button"
+                      >
+                        <LogOut size={20} />
+                        <span>Đăng xuất</span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        className="flex items-center gap-3 rounded-md px-3 py-2 text-slate-700 text-sm hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
+                        href="/login"
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        <User size={20} />
+                        <span>Đăng nhập</span>
+                      </Link>
+                      <Link
+                        className="flex items-center gap-3 rounded-md px-3 py-2 text-slate-700 text-sm hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
+                        href="/register"
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        <User size={20} />
+                        <span>Đăng ký</span>
+                      </Link>
+                    </>
+                  )}
                   <Link
                     className="flex items-center gap-3 rounded-md px-3 py-2 text-slate-700 text-sm hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
                     href="/cart"

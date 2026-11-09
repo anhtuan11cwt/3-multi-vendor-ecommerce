@@ -70,9 +70,12 @@ export async function POST(request) {
         });
         const html = await render(
           EmailTemplate({
+            description:
+              "Cảm ơn bạn đã tạo tài khoản cùng chúng tôi. Vui lòng bấm vào nút bên dưới để hoàn tất quá trình đăng ký:",
             linkText: "Xác thực tài khoản",
             name,
             redirectUrl,
+            subject: "Xác thực tài khoản",
           }),
         );
         await transporter.sendMail({

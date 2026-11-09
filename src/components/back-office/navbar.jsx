@@ -1,20 +1,23 @@
 "use client";
 
-import { Bell, LayoutDashboard, LogOut, Settings, X } from "lucide-react";
+import { Bell, X } from "lucide-react";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 import ThemeSwitcherBtn from "@/components/theme-switcher-btn";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import UserAvatar from "./user-avatar";
 
 export default function Navbar() {
+  const { data: session } = useSession();
+
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-white pr-4 sm:gap-4 sm:px-6 dark:bg-slate-900">
       <div className="lg:hidden" />
@@ -52,8 +55,8 @@ export default function Navbar() {
                   width={36}
                 />
               </div>
-              <div className="flex flex-1 flex-col gap-1">
-                <div className="flex items-center gap-2">
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium text-sm">Đơn hàng #1234</span>
                   <span className="rounded bg-red-700 px-2 py-0.5 text-white text-xs">
                     Hết hàng
@@ -79,8 +82,8 @@ export default function Navbar() {
                   width={36}
                 />
               </div>
-              <div className="flex flex-1 flex-col gap-1">
-                <div className="flex items-center gap-2">
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium text-sm">Đơn hàng #1235</span>
                   <span className="rounded bg-red-700 px-2 py-0.5 text-white text-xs">
                     Hết hàng
@@ -96,41 +99,7 @@ export default function Navbar() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Image
-              alt="ảnh đại diện"
-              className="h-8 w-8 rounded-full"
-              height={200}
-              src="/profile_icon.png"
-              width={200}
-            />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Tài khoản</DropdownMenuLabel>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <button className="flex items-center gap-2" type="button">
-                <LayoutDashboard size={16} />
-                Bảng điều khiển
-              </button>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <button className="flex items-center gap-2" type="button">
-                <Settings size={16} />
-                Chỉnh sửa hồ sơ
-              </button>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <button className="flex items-center gap-2" type="button">
-                <LogOut size={16} />
-                Đăng xuất
-              </button>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <UserAvatar user={session?.user} />
       </div>
     </header>
   );

@@ -16,14 +16,17 @@ import {
   Tags,
   Ticket,
   Truck,
+  User,
   UserCog,
   Users,
   Wallet,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
+import Loading from "@/app/loading";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -51,10 +54,46 @@ const navLinks = [
 
 function SidebarContent() {
   const pathname = usePathname();
+  const router = useRouter();
   const { close } = useSidebar();
   const [catalogOpen, setCatalogOpen] = useState(
     catalogLinks.some((link) => pathname.startsWith(link.href)),
   );
+  const { data: session, status } = useSession();
+
+  async function handleLogout() {
+    close();
+    await signOut({ redirect: false });
+    router.push("/");
+    router.refresh();
+  }
+
+  if (status === "loading") return <Loading />;
+
+  const role = session?.user?.role?.toLowerCase();
+  let visibleNavLinks = navLinks;
+  let visibleCatalogLinks = catalogLinks;
+
+  if (role === "farmer") {
+    visibleNavLinks = [
+      { href: "/dashboard/orders", icon: ShoppingBag, label: "Đơn hàng" },
+      { href: "/dashboard/community", icon: Building2, label: "Cộng đồng" },
+      { href: "/dashboard/markets", icon: Store, label: "Chợ" },
+      { href: "/dashboard/customers", icon: Users, label: "Khách hàng" },
+      { href: "/dashboard/wallet", icon: Wallet, label: "Ví" },
+      { href: "/dashboard/settings", icon: Settings, label: "Cài đặt" },
+      { href: "/dashboard/profile", icon: User, label: "Hồ sơ" },
+      { href: "/", icon: ShoppingCart, label: "Cửa hàng trực tuyến" },
+    ];
+    visibleCatalogLinks = [];
+  } else if (role === "user") {
+    visibleNavLinks = [
+      { href: "/dashboard/orders", icon: ShoppingBag, label: "Đơn hàng" },
+      { href: "/dashboard/profile", icon: User, label: "Hồ sơ" },
+      { href: "/", icon: ShoppingCart, label: "Cửa hàng trực tuyến" },
+    ];
+    visibleCatalogLinks = [];
+  }
 
   return (
     <div className="flex h-full flex-col">
@@ -78,65 +117,70 @@ function SidebarContent() {
               className="w-full justify-start gap-3"
               variant={pathname === "/dashboard" ? "secondary" : "ghost"}
             >
-              <Link className="flex items-center gap-3" href="/dashboard">
-                <LayoutDashboard size={18} />
-                Bảng điều khiển
+              <Link
+                className="flex min-w-0 items-center gap-3"
+                href="/dashboard"
+              >
+                <LayoutDashboard className="shrink-0" size={18} />
+                <span className="truncate">Bảng điều khiển</span>
               </Link>
             </Button>
           </li>
 
-          <li>
-            <Button
-              className="w-full justify-between"
-              onClick={() => setCatalogOpen((p) => !p)}
-              variant={
-                catalogLinks.some((l) => pathname.startsWith(l.href))
-                  ? "secondary"
-                  : "ghost"
-              }
-            >
-              <span className="flex items-center gap-3">
-                <FolderTree size={18} />
-                Danh mục
-              </span>
-              <ChevronDown
-                className={cn(
-                  "transition-transform duration-200",
-                  catalogOpen && "rotate-180",
-                )}
-                size={14}
-              />
-            </Button>
-            {catalogOpen && (
-              <ul className="mt-1 ml-4 space-y-0.5 border-l pl-3">
-                {catalogLinks.map((link) => {
-                  const Icon = link.icon;
-                  const isActive =
-                    pathname === link.href ||
-                    pathname.startsWith(`${link.href}/`);
-                  return (
-                    <li key={link.href}>
-                      <Button
-                        className="w-full justify-start gap-2"
-                        size="sm"
-                        variant={isActive ? "secondary" : "ghost"}
-                      >
-                        <Link
-                          className="flex items-center gap-2 dark:text-slate-300"
-                          href={link.href}
+          {visibleCatalogLinks.length > 0 && (
+            <li>
+              <Button
+                className="w-full justify-between"
+                onClick={() => setCatalogOpen((p) => !p)}
+                variant={
+                  visibleCatalogLinks.some((l) => pathname.startsWith(l.href))
+                    ? "secondary"
+                    : "ghost"
+                }
+              >
+                <span className="flex items-center gap-3">
+                  <FolderTree size={18} />
+                  Danh mục
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "transition-transform duration-200",
+                    catalogOpen && "rotate-180",
+                  )}
+                  size={14}
+                />
+              </Button>
+              {catalogOpen && (
+                <ul className="mt-1 ml-4 space-y-0.5 border-l pl-3">
+                  {visibleCatalogLinks.map((link) => {
+                    const Icon = link.icon;
+                    const isActive =
+                      pathname === link.href ||
+                      pathname.startsWith(`${link.href}/`);
+                    return (
+                      <li key={link.href}>
+                        <Button
+                          className="w-full justify-start gap-2"
+                          size="sm"
+                          variant={isActive ? "secondary" : "ghost"}
                         >
-                          <Icon size={14} />
-                          {link.label}
-                        </Link>
-                      </Button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </li>
+                          <Link
+                            className="flex min-w-0 items-center gap-2 dark:text-slate-300"
+                            href={link.href}
+                          >
+                            <Icon className="shrink-0" size={14} />
+                            <span className="truncate">{link.label}</span>
+                          </Link>
+                        </Button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </li>
+          )}
 
-          {navLinks.map((link) => {
+          {visibleNavLinks.map((link) => {
             const Icon = link.icon;
             const isActive =
               link.href === "/"
@@ -149,9 +193,12 @@ function SidebarContent() {
                   className="w-full justify-start gap-3"
                   variant={isActive ? "secondary" : "ghost"}
                 >
-                  <Link className="flex items-center gap-3" href={link.href}>
-                    <Icon size={18} />
-                    {link.label}
+                  <Link
+                    className="flex min-w-0 items-center gap-3"
+                    href={link.href}
+                  >
+                    <Icon className="shrink-0" size={18} />
+                    <span className="truncate">{link.label}</span>
                   </Link>
                 </Button>
               </li>
@@ -163,7 +210,7 @@ function SidebarContent() {
       <div className="mt-auto px-3 pb-3">
         <button
           className="flex w-full items-center gap-3 rounded bg-slate-600 px-3 py-2 text-sm text-white hover:bg-slate-700"
-          onClick={close}
+          onClick={handleLogout}
           type="button"
         >
           <LogOut size={18} />
@@ -179,12 +226,12 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Desktop sidebar */}
+      {/* Sidebar máy tính */}
       <aside className="hidden border-slate-200 border-r bg-white shadow-md lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:flex lg:w-60 lg:flex-col dark:border-slate-700 dark:bg-slate-800">
         <SidebarContent />
       </aside>
 
-      {/* Mobile sidebar */}
+      {/* Sidebar di động */}
       <Sheet onOpenChange={(open) => (open ? toggle() : close())} open={isOpen}>
         <Button
           className="fixed top-3 left-3 z-40 lg:hidden"

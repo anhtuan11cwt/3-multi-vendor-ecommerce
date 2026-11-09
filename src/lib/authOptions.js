@@ -2,6 +2,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcrypt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import db from "@/lib/db";
+import { loginSchema } from "@/lib/validations/user";
 
 export const authOptions = {
   adapter: PrismaAdapter(db),
@@ -34,16 +35,20 @@ export const authOptions = {
       async authorize(credentials) {
         console.log("authorize: nhận thông tin đăng nhập", credentials?.email);
 
-        if (!credentials?.email || !credentials?.password) {
+        const parsed = loginSchema.safeParse(credentials);
+
+        if (!parsed.success) {
           console.log(
-            "authorize: kiểm tra 1 thất bại — thiếu email hoặc mật khẩu",
+            "authorize: kiểm tra 1 thất bại — email hoặc mật khẩu không hợp lệ",
           );
-          throw new Error("Vui lòng nhập email và mật khẩu");
+          throw new Error("Email hoặc mật khẩu không đúng");
         }
         console.log("authorize: đạt kiểm tra 1");
 
+        const { email, password } = parsed.data;
+
         const existingUser = await db.user.findUnique({
-          where: { email: credentials.email.trim() },
+          where: { email },
         });
 
         if (!existingUser) {
@@ -62,7 +67,7 @@ export const authOptions = {
         }
 
         const isPasswordValid = await bcrypt.compare(
-          credentials.password,
+          password,
           existingUser.password,
         );
 

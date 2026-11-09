@@ -27,13 +27,15 @@ export default function EmailTemplate({
   name = "",
   redirectUrl = "",
   linkText = "Xác thực tài khoản",
+  description = "Cảm ơn bạn đã tạo tài khoản cùng chúng tôi. Vui lòng bấm vào nút bên dưới để hoàn tất quá trình đăng ký:",
+  subject = "Xác thực tài khoản của bạn",
 }) {
   const verifyUrl = `${baseUrl}${redirectUrl}`;
 
   return (
     <Html>
       <Head />
-      <Preview>Xác thực tài khoản của bạn</Preview>
+      <Preview>{subject}</Preview>
       <Body style={{ backgroundColor: "#f4f4f5", fontFamily: "sans-serif" }}>
         <Container
           style={{
@@ -62,8 +64,7 @@ export default function EmailTemplate({
             <Row>
               <Column>
                 <Text style={{ color: "#3f3f46", fontSize: "14px" }}>
-                  Cảm ơn bạn đã tạo tài khoản cùng chúng tôi. Vui lòng bấm vào
-                  nút bên dưới để hoàn tất quá trình đăng ký:
+                  {description}
                 </Text>
               </Column>
             </Row>
