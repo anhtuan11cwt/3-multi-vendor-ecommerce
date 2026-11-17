@@ -19,7 +19,7 @@ function saveCart(cartItems) {
 
 const cartSlice = createSlice({
   initialState: {
-    cartItems: loadCart(),
+    cartItems: [],
   },
   name: "cart",
   reducers: {
@@ -46,6 +46,9 @@ const cartSlice = createSlice({
       state.cartItems = [];
       saveCart(state.cartItems);
     },
+    hydrateCart(state) {
+      state.cartItems = loadCart();
+    },
     removeFromCart(state, action) {
       state.cartItems = state.cartItems.filter(
         (item) => item.id !== action.payload,
@@ -63,6 +66,11 @@ const cartSlice = createSlice({
   },
 });
 
-export const { addToCart, removeFromCart, updateQuantity, clearCart } =
-  cartSlice.actions;
+export const {
+  addToCart,
+  clearCart,
+  hydrateCart,
+  removeFromCart,
+  updateQuantity,
+} = cartSlice.actions;
 export default cartSlice.reducer;

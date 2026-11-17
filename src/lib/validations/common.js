@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const vietnameseNameSchema = z
-  .string()
+  .string({ error: "Họ tên không hợp lệ" })
   .trim()
   .min(1, "Họ tên không được để trống")
   .min(2, "Họ tên phải có ít nhất 2 ký tự")
@@ -12,7 +12,7 @@ export const vietnameseNameSchema = z
   );
 
 export const vietnamesePhoneSchema = z
-  .string()
+  .string({ error: "Số điện thoại không hợp lệ" })
   .trim()
   .min(1, "Số điện thoại không được để trống")
   .regex(

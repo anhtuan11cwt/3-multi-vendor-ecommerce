@@ -49,9 +49,7 @@ export default function CartPage() {
       </h1>
 
       <div className="grid grid-cols-1 gap-4 sm:gap-8 lg:grid-cols-12">
-        {/* Cột trái: danh sách sản phẩm */}
         <div className="lg:col-span-8">
-          {/* Bảng — máy tính */}
           <div className="hidden rounded-xl border border-slate-200 bg-white p-2 sm:p-4 lg:block dark:border-slate-700 dark:bg-slate-800">
             <table className="w-full border-collapse">
               <thead>
@@ -76,7 +74,6 @@ export default function CartPage() {
             </table>
           </div>
 
-          {/* Thẻ — điện thoại */}
           <div className="flex flex-col gap-3 lg:hidden">
             {cartItems.map((item) => (
               <CartItem item={item} key={item.id} mobile />
@@ -98,7 +95,6 @@ export default function CartPage() {
           </div>
         </div>
 
-        {/* Cột phải: tổng đơn hàng */}
         <div className="lg:col-span-4">
           <div className="sticky top-24 rounded-xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-700 dark:bg-slate-800">
             <h2 className="mb-4 font-semibold text-lg text-slate-800 dark:text-slate-100">
@@ -140,10 +136,10 @@ export default function CartPage() {
             </div>
 
             <Link
-              className="block w-full rounded-lg bg-lime-600 py-3 text-center font-medium text-white transition-colors hover:bg-lime-700"
+              className="mt-8 block w-full rounded-lg bg-lime-600 px-6 py-3 text-center font-medium text-white transition-colors hover:bg-lime-700 dark:bg-lime-600 dark:hover:bg-lime-700"
               href="/checkout"
             >
-              Tiến hành thanh toán
+              Tiếp tục thanh toán
             </Link>
           </div>
         </div>
