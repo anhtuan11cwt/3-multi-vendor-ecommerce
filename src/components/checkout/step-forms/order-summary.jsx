@@ -1,14 +1,22 @@
 "use client";
 
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
+import { setCurrentStep } from "@/store/checkoutSlice";
 import { paymentMethodLabels } from "./payment-method-form";
 
 export default function OrderSummary() {
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
   const cartItems = useSelector((state) => state.cart.cartItems);
+  const currentStep = useSelector((state) => state.checkout.currentStep);
   const checkoutFormData = useSelector(
     (state) => state.checkout.checkoutFormData,
   );
@@ -19,6 +27,12 @@ export default function OrderSummary() {
   );
   const shippingCost = Number(checkoutFormData.shippingCost ?? 0);
   const total = subtotal + shippingCost;
+
+  const handlePrevious = () => {
+    if (currentStep > 1) {
+      dispatch(setCurrentStep(currentStep - 1));
+    }
+  };
 
   const submitData = async () => {
     const payload = {
@@ -36,6 +50,7 @@ export default function OrderSummary() {
 
     console.log("Toàn bộ dữ liệu thanh toán:", payload);
 
+    setLoading(true);
     try {
       const response = await fetch("/api/orders", {
         body: JSON.stringify(payload),
@@ -45,16 +60,19 @@ export default function OrderSummary() {
       const result = await response.json();
 
       if (!response.ok) {
-        console.error("Dữ liệu đơn hàng không hợp lệ:", result.errors);
-        toast.error(result.message || "Dữ liệu đơn hàng không hợp lệ");
+        console.error("Không thể tạo đơn hàng:", result.errors ?? result);
+        toast.error(result.message || "Không thể tạo đơn hàng");
         return;
       }
 
       console.log("API phản hồi:", result);
-      toast.success("Đơn hàng hợp lệ — sẵn sàng chuyển sang cổng thanh toán");
+      toast.success("Tạo đơn hàng thành công");
+      router.push("/order-confirmation");
     } catch (error) {
       console.error("Lỗi gọi API:", error);
       toast.error("Không thể kết nối máy chủ, vui lòng thử lại");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -80,7 +98,10 @@ export default function OrderSummary() {
         <>
           <ul className="divide-y divide-slate-200 dark:divide-slate-700">
             {cartItems.map((item) => (
-              <li className="flex items-center gap-3 py-3" key={item.id}>
+              <li
+                className="flex items-center gap-2 py-3 sm:gap-3"
+                key={item.id}
+              >
                 <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg">
                   {item.imageUrl ? (
                     <Image
@@ -108,7 +129,7 @@ export default function OrderSummary() {
                   </p>
                 </div>
 
-                <span className="whitespace-nowrap font-bold text-slate-800 text-sm dark:text-slate-100">
+                <span className="shrink-0 whitespace-nowrap font-bold text-slate-800 text-sm dark:text-slate-100">
                   {(Number(item.price) * Number(item.quantity)).toLocaleString(
                     "vi-VN",
                   )}
@@ -146,31 +167,31 @@ export default function OrderSummary() {
           </div>
 
           <div className="mt-4 grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm sm:grid-cols-2 dark:border-slate-700 dark:bg-slate-800">
-            <div>
+            <div className="min-w-0">
               <p className="font-medium text-slate-800 dark:text-slate-100">
                 Thông tin cá nhân
               </p>
-              <p className="text-slate-500 dark:text-slate-400">
+              <p className="break-words text-slate-500 dark:text-slate-400">
                 {checkoutFormData.fullName}
               </p>
-              <p className="text-slate-500 dark:text-slate-400">
+              <p className="break-words text-slate-500 dark:text-slate-400">
                 {checkoutFormData.email}
               </p>
-              <p className="text-slate-500 dark:text-slate-400">
+              <p className="break-words text-slate-500 dark:text-slate-400">
                 {checkoutFormData.phone}
               </p>
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="font-medium text-slate-800 dark:text-slate-100">
                 Giao hàng
               </p>
-              <p className="text-slate-500 dark:text-slate-400">
+              <p className="break-words text-slate-500 dark:text-slate-400">
                 {checkoutFormData.streetAddress}
               </p>
-              <p className="text-slate-500 dark:text-slate-400">
+              <p className="break-words text-slate-500 dark:text-slate-400">
                 {checkoutFormData.province} — {checkoutFormData.ward}
               </p>
-              <p className="text-slate-500 dark:text-slate-400">
+              <p className="break-words text-slate-500 dark:text-slate-400">
                 Thanh toán:{" "}
                 {paymentMethodLabels[checkoutFormData.paymentMethod] ??
                   checkoutFormData.paymentMethod}
@@ -178,14 +199,25 @@ export default function OrderSummary() {
             </div>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
             <button
-              className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-lime-600 px-6 py-3 font-medium text-sm text-white transition-colors hover:bg-lime-700 dark:bg-lime-600 dark:hover:bg-lime-700"
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-3 font-medium text-slate-600 text-sm transition-colors hover:border-slate-400 hover:text-slate-800 sm:w-auto sm:px-6 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-slate-100"
+              disabled={loading}
+              onClick={handlePrevious}
+              type="button"
+            >
+              <ChevronLeft size={16} />
+              Quay lại
+            </button>
+
+            <button
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-lime-600 px-4 py-3 font-medium text-sm text-white transition-colors hover:bg-lime-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-6 dark:bg-lime-600 dark:hover:bg-lime-700"
+              disabled={loading}
               onClick={submitData}
               type="button"
             >
-              Tiến hành thanh toán
-              <ChevronRight size={16} />
+              {loading ? "Đang xử lý, vui lòng chờ..." : "Tiến hành thanh toán"}
+              {!loading && <ChevronRight size={16} />}
             </button>
           </div>
         </>

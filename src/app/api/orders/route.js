@@ -1,8 +1,25 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
+import db from "@/lib/db";
 import { orderApiSchema } from "@/lib/validations/checkout";
 
 export async function POST(request) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        {
+          message: "Vui lòng đăng nhập để tạo đơn hàng",
+          status: 401,
+        },
+        { status: 401 },
+      );
+    }
+
+    const userId = session.user.id;
+
     const body = await request.json();
     const parsed = orderApiSchema.safeParse(body);
 
@@ -20,27 +37,85 @@ export async function POST(request) {
     const { items, subtotal, shippingCost, total, ...customerInfo } =
       parsed.data;
 
-    console.log("Đơn hàng hợp lệ:", {
-      ...customerInfo,
-      itemCount: items.length,
-      shippingCost,
-      subtotal,
-      total,
+    const newOrder = await db.order.create({
+      data: {
+        ...customerInfo,
+        province: customerInfo.province ?? "",
+        shippingCost: Number(shippingCost),
+        subtotal: Number(subtotal),
+        total: Number(total),
+        userId,
+        ward: customerInfo.ward ?? "",
+      },
     });
+
+    const newOrderItems = await db.orderItem.createMany({
+      data: items.map((item) => ({
+        orderId: newOrder.id,
+        price: Number(item.price),
+        productId: item.id,
+        quantity: Number(item.quantity),
+      })),
+    });
+
+    console.log("Đơn hàng đã tạo:", newOrder);
+    console.log("Chi tiết sản phẩm:", newOrderItems);
 
     return NextResponse.json(
       {
-        data: parsed.data,
-        message: "Dữ liệu đơn hàng hợp lệ",
+        data: newOrder,
+        message: "Tạo đơn hàng thành công",
         status: 200,
       },
       { status: 200 },
     );
   } catch (error) {
+    console.error("Lỗi tạo đơn hàng:", error);
     return NextResponse.json(
       {
         error: error.message,
         message: "Xử lý đơn hàng thất bại",
+        status: 500,
+      },
+      { status: 500 },
+    );
+  }
+}
+
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        {
+          message: "Vui lòng đăng nhập để xem đơn hàng",
+          status: 401,
+        },
+        { status: 401 },
+      );
+    }
+
+    const orders = await db.order.findMany({
+      include: { orderItems: true },
+      orderBy: { createdAt: "desc" },
+      where: { userId: session.user.id },
+    });
+
+    return NextResponse.json(
+      {
+        data: orders,
+        message: "Lấy danh sách đơn hàng thành công",
+        status: 200,
+      },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error("Lỗi lấy danh sách đơn hàng:", error);
+    return NextResponse.json(
+      {
+        error: error.message,
+        message: "Lấy danh sách đơn hàng thất bại",
         status: 500,
       },
       { status: 500 },
