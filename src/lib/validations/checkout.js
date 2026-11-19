@@ -65,6 +65,7 @@ const orderItemSchema = z.object({
   id: z.union([z.string().min(1), z.number()], {
     error: "Mã sản phẩm không hợp lệ",
   }),
+  imageUrl: z.string().trim().optional(),
   price: z.coerce
     .number({ error: "Giá sản phẩm không hợp lệ" })
     .min(15000, "Giá sản phẩm tối thiểu 15.000đ"),

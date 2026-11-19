@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, LogOut, Settings } from "lucide-react";
+import { LayoutDashboard, LogOut, Settings, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,7 +18,8 @@ import {
 import { generateInitials } from "@/lib/generateInitials";
 
 export default function UserAvatar({ user = {} }) {
-  const { image = null, name = "" } = user;
+  const { image = null, name = "", role = null } = user;
+  const isRegularUser = role?.toLowerCase() === "user";
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const initials = generateInitials(name);
@@ -55,7 +56,10 @@ export default function UserAvatar({ user = {} }) {
           </div>
         )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent
+        align="end"
+        className="w-48 max-w-[calc(100vw-1rem)]"
+      >
         <DropdownMenuGroup>
           <DropdownMenuLabel>{name || "Tài khoản"}</DropdownMenuLabel>
         </DropdownMenuGroup>
@@ -72,6 +76,14 @@ export default function UserAvatar({ user = {} }) {
             Chỉnh sửa hồ sơ
           </Link>
         </DropdownMenuItem>
+        {isRegularUser && (
+          <DropdownMenuItem>
+            <Link className="flex items-center gap-2" href="/dashboard/orders">
+              <ShoppingBag size={16} />
+              Đơn hàng của tôi
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <button

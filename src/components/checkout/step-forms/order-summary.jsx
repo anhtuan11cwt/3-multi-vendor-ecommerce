@@ -7,7 +7,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
-import { setCurrentStep } from "@/store/checkoutSlice";
+import { clearCart } from "@/store/cartSlice";
+import { resetCheckout, setCurrentStep } from "@/store/checkoutSlice";
 import { paymentMethodLabels } from "./payment-method-form";
 
 export default function OrderSummary() {
@@ -39,6 +40,7 @@ export default function OrderSummary() {
       ...checkoutFormData,
       items: cartItems.map((item) => ({
         id: item.id,
+        imageUrl: item.imageUrl,
         price: item.price,
         quantity: item.quantity,
         title: item.title,
@@ -67,7 +69,9 @@ export default function OrderSummary() {
 
       console.log("API phản hồi:", result);
       toast.success("Tạo đơn hàng thành công");
-      router.push("/order-confirmation");
+      dispatch(clearCart());
+      dispatch(resetCheckout());
+      router.push(`/order-confirmation/${result.data.id}`);
     } catch (error) {
       console.error("Lỗi gọi API:", error);
       toast.error("Không thể kết nối máy chủ, vui lòng thử lại");
@@ -83,7 +87,7 @@ export default function OrderSummary() {
       </h2>
 
       {cartItems.length === 0 ? (
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-6 text-center dark:border-slate-700 dark:bg-slate-800">
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center sm:p-6 dark:border-slate-700 dark:bg-slate-800">
           <p className="mb-4 text-slate-500 text-sm dark:text-slate-400">
             Giỏ hàng của bạn đang trống.
           </p>
@@ -129,7 +133,7 @@ export default function OrderSummary() {
                   </p>
                 </div>
 
-                <span className="shrink-0 whitespace-nowrap font-bold text-slate-800 text-sm dark:text-slate-100">
+                <span className="shrink-0 whitespace-nowrap font-bold text-slate-800 text-sm tabular-nums dark:text-slate-100">
                   {(Number(item.price) * Number(item.quantity)).toLocaleString(
                     "vi-VN",
                   )}
@@ -140,33 +144,33 @@ export default function OrderSummary() {
           </ul>
 
           <div className="mt-4 space-y-2 border-slate-200 border-t pt-4 dark:border-slate-700">
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between gap-3 text-sm">
               <span className="text-slate-500 dark:text-slate-400">
                 Tạm tính
               </span>
-              <span className="font-medium text-slate-800 dark:text-slate-100">
+              <span className="shrink-0 font-medium text-slate-800 tabular-nums dark:text-slate-100">
                 {subtotal.toLocaleString("vi-VN")}đ
               </span>
             </div>
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between gap-3 text-sm">
               <span className="text-slate-500 dark:text-slate-400">
                 Phí vận chuyển
               </span>
-              <span className="font-medium text-slate-800 dark:text-slate-100">
+              <span className="shrink-0 font-medium text-slate-800 tabular-nums dark:text-slate-100">
                 {shippingCost.toLocaleString("vi-VN")}đ
               </span>
             </div>
-            <div className="flex items-center justify-between pt-1">
+            <div className="flex items-center justify-between gap-3 pt-1">
               <span className="font-semibold text-slate-800 dark:text-slate-100">
                 Tổng cộng
               </span>
-              <span className="font-bold text-lime-600 dark:text-lime-400">
+              <span className="shrink-0 font-bold text-lime-600 tabular-nums dark:text-lime-400">
                 {total.toLocaleString("vi-VN")}đ
               </span>
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm sm:grid-cols-2 dark:border-slate-700 dark:bg-slate-800">
+          <div className="mt-4 grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm sm:grid-cols-2 sm:p-4 dark:border-slate-700 dark:bg-slate-800">
             <div className="min-w-0">
               <p className="font-medium text-slate-800 dark:text-slate-100">
                 Thông tin cá nhân

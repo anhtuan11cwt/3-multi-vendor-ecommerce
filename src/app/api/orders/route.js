@@ -4,6 +4,18 @@ import { authOptions } from "@/lib/authOptions";
 import db from "@/lib/db";
 import { orderApiSchema } from "@/lib/validations/checkout";
 
+const ORDER_NUMBER_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+function generateOrderNumber(length = 8) {
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += ORDER_NUMBER_CHARS.charAt(
+      Math.floor(Math.random() * ORDER_NUMBER_CHARS.length),
+    );
+  }
+  return result;
+}
+
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions);
@@ -40,6 +52,7 @@ export async function POST(request) {
     const newOrder = await db.order.create({
       data: {
         ...customerInfo,
+        orderNumber: generateOrderNumber(8),
         province: customerInfo.province ?? "",
         shippingCost: Number(shippingCost),
         subtotal: Number(subtotal),
@@ -51,10 +64,12 @@ export async function POST(request) {
 
     const newOrderItems = await db.orderItem.createMany({
       data: items.map((item) => ({
+        imageUrl: item.imageUrl ?? null,
         orderId: newOrder.id,
         price: Number(item.price),
         productId: item.id,
         quantity: Number(item.quantity),
+        title: item.title,
       })),
     });
 
