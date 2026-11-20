@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BadgeDollarSign,
   Building2,
   ChevronDown,
   FolderTree,
@@ -26,6 +27,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
+import { toast } from "sonner";
 import Loading from "@/app/loading";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -45,6 +47,7 @@ const navLinks = [
   { href: "/dashboard/markets", icon: Store, label: "Chợ" },
   { href: "/dashboard/farmers", icon: Truck, label: "Nông dân" },
   { href: "/dashboard/orders", icon: ShoppingBag, label: "Đơn hàng" },
+  { href: "/dashboard/sales", icon: BadgeDollarSign, label: "Doanh số" },
   { href: "/dashboard/staff", icon: UserCog, label: "Nhân viên" },
   { href: "/dashboard/community", icon: Building2, label: "Cộng đồng" },
   { href: "/dashboard/wallet", icon: Wallet, label: "Ví" },
@@ -64,6 +67,7 @@ function SidebarContent() {
   async function handleLogout() {
     close();
     await signOut({ redirect: false });
+    toast.success("Đăng xuất thành công");
     router.push("/");
     router.refresh();
   }
@@ -77,6 +81,7 @@ function SidebarContent() {
   if (role === "farmer") {
     visibleNavLinks = [
       { href: "/dashboard/orders", icon: ShoppingBag, label: "Đơn hàng" },
+      { href: "/dashboard/sales", icon: BadgeDollarSign, label: "Doanh số" },
       { href: "/dashboard/community", icon: Building2, label: "Cộng đồng" },
       { href: "/dashboard/markets", icon: Store, label: "Chợ" },
       { href: "/dashboard/customers", icon: Users, label: "Khách hàng" },
@@ -88,7 +93,11 @@ function SidebarContent() {
     visibleCatalogLinks = [];
   } else if (role === "user") {
     visibleNavLinks = [
-      { href: "/dashboard/orders", icon: ShoppingBag, label: "Đơn hàng" },
+      {
+        href: "/dashboard/orders",
+        icon: ShoppingBag,
+        label: "Đơn hàng của tôi",
+      },
       { href: "/dashboard/profile", icon: User, label: "Hồ sơ" },
       { href: "/", icon: ShoppingCart, label: "Cửa hàng trực tuyến" },
     ];
@@ -97,10 +106,10 @@ function SidebarContent() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="px-6 py-5">
+      <div className="px-4 py-4 sm:px-6 sm:py-5">
         <Link href="/dashboard">
           <Image
-            alt="Logo"
+            alt="Logo cửa hàng"
             className="w-36"
             height={30}
             priority
@@ -243,7 +252,7 @@ export default function Sidebar() {
           <span className="sr-only">Chuyển đổi menu</span>
         </Button>
         <SheetContent
-          className="w-56 border-slate-200 bg-white p-0 sm:w-60 dark:border-slate-700 dark:bg-slate-800"
+          className="w-56 max-w-[calc(100vw-1rem)] border-slate-200 bg-white p-0 sm:w-60 dark:border-slate-700 dark:bg-slate-800"
           side="left"
         >
           <SheetTitle className="sr-only">Điều hướng</SheetTitle>

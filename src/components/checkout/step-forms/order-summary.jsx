@@ -15,6 +15,7 @@ export default function OrderSummary() {
   const dispatch = useDispatch();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
 
   const cartItems = useSelector((state) => state.cart.cartItems);
   const currentStep = useSelector((state) => state.checkout.currentStep);
@@ -71,12 +72,15 @@ export default function OrderSummary() {
       toast.success("Tạo đơn hàng thành công");
       dispatch(clearCart());
       dispatch(resetCheckout());
+      setRedirecting(true);
       router.push(`/order-confirmation/${result.data.id}`);
     } catch (error) {
       console.error("Lỗi gọi API:", error);
       toast.error("Không thể kết nối máy chủ, vui lòng thử lại");
     } finally {
-      setLoading(false);
+      if (!redirecting) {
+        setLoading(false);
+      }
     }
   };
 
@@ -87,7 +91,7 @@ export default function OrderSummary() {
       </h2>
 
       {cartItems.length === 0 ? (
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-center sm:p-6 dark:border-slate-700 dark:bg-slate-800">
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-center sm:p-6 dark:border-slate-700 dark:bg-slate-800">
           <p className="mb-4 text-slate-500 text-sm dark:text-slate-400">
             Giỏ hàng của bạn đang trống.
           </p>
@@ -133,7 +137,7 @@ export default function OrderSummary() {
                   </p>
                 </div>
 
-                <span className="shrink-0 whitespace-nowrap font-bold text-slate-800 text-sm tabular-nums dark:text-slate-100">
+                <span className="shrink-0 whitespace-nowrap font-bold text-slate-800 text-xs tabular-nums min-[360px]:text-sm dark:text-slate-100">
                   {(Number(item.price) * Number(item.quantity)).toLocaleString(
                     "vi-VN",
                   )}
@@ -143,8 +147,8 @@ export default function OrderSummary() {
             ))}
           </ul>
 
-          <div className="mt-4 space-y-2 border-slate-200 border-t pt-4 dark:border-slate-700">
-            <div className="flex items-center justify-between gap-3 text-sm">
+          <div className="mt-4 space-y-2 border-slate-200 border-t pt-4 text-xs min-[400px]:text-sm dark:border-slate-700">
+            <div className="flex items-center justify-between gap-3">
               <span className="text-slate-500 dark:text-slate-400">
                 Tạm tính
               </span>
@@ -152,7 +156,7 @@ export default function OrderSummary() {
                 {subtotal.toLocaleString("vi-VN")}đ
               </span>
             </div>
-            <div className="flex items-center justify-between gap-3 text-sm">
+            <div className="flex items-center justify-between gap-3">
               <span className="text-slate-500 dark:text-slate-400">
                 Phí vận chuyển
               </span>
@@ -205,7 +209,7 @@ export default function OrderSummary() {
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
             <button
-              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-4 py-3 font-medium text-slate-600 text-sm transition-colors hover:border-slate-400 hover:text-slate-800 sm:w-auto sm:px-6 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-slate-100"
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-3 text-center font-medium text-slate-600 text-sm transition-colors hover:border-slate-400 hover:text-slate-800 sm:w-auto sm:px-6 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-slate-100"
               disabled={loading}
               onClick={handlePrevious}
               type="button"
@@ -215,13 +219,17 @@ export default function OrderSummary() {
             </button>
 
             <button
-              className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-lime-600 px-4 py-3 font-medium text-sm text-white transition-colors hover:bg-lime-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-6 dark:bg-lime-600 dark:hover:bg-lime-700"
-              disabled={loading}
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-lime-600 px-3 py-3 text-center font-medium text-sm text-white transition-colors hover:bg-lime-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-6 dark:bg-lime-600 dark:hover:bg-lime-700"
+              disabled={loading || redirecting}
               onClick={submitData}
               type="button"
             >
-              {loading ? "Đang xử lý, vui lòng chờ..." : "Tiến hành thanh toán"}
-              {!loading && <ChevronRight size={16} />}
+              {redirecting
+                ? "Đơn hàng đã tạo, đang chuyển hướng..."
+                : loading
+                  ? "Đang xử lý, vui lòng chờ..."
+                  : "Tiến hành thanh toán"}
+              {!loading && !redirecting && <ChevronRight size={16} />}
             </button>
           </div>
         </>

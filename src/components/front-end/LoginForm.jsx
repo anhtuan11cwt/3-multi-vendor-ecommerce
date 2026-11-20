@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -29,6 +29,8 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   const form = useForm({
     defaultValues: {
@@ -51,7 +53,7 @@ export default function LoginForm() {
         toast.error("Email hoặc mật khẩu không đúng", { duration: 2000 });
       } else {
         toast.success("Đăng nhập thành công", { duration: 2000 });
-        router.push("/");
+        router.push(callbackUrl);
         router.refresh();
       }
     } catch {

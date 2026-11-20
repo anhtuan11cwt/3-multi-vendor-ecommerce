@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +29,7 @@ export default function UserAvatar({ user = {} }) {
     setIsLoading(true);
     try {
       await signOut({ redirect: false });
+      toast.success("Đăng xuất thành công");
       router.push("/");
       router.refresh();
     } finally {
@@ -51,7 +53,7 @@ export default function UserAvatar({ user = {} }) {
             width={32}
           />
         ) : (
-          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-600 bg-slate-800 p-2 font-medium text-white text-xs shadow-md">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-50 p-2 font-medium text-slate-700 text-xs shadow-md dark:border-slate-600 dark:bg-slate-800 dark:text-white">
             {initials}
           </div>
         )}
