@@ -5,6 +5,7 @@ import { productApiSchema } from "@/lib/validations/product";
 export async function GET() {
   try {
     const products = await db.product.findMany({
+      include: { farmer: { select: { userId: true } } },
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(products);

@@ -5,7 +5,11 @@ import { categoryApiSchema } from "@/lib/validations/category";
 export async function GET() {
   try {
     const categories = await db.category.findMany({
-      include: { products: true },
+      include: {
+        products: {
+          include: { farmer: { select: { userId: true } } },
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(categories);

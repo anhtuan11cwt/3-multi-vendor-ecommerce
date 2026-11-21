@@ -5,7 +5,7 @@ export async function GET(_request, { params }) {
   try {
     const { slug } = await params;
     const product = await db.product.findUnique({
-      include: { category: true },
+      include: { category: true, farmer: { select: { userId: true } } },
       where: { slug },
     });
 

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { convertIsoDateToNormalDate } from "@/lib/convert-iso-date-to-normal-date";
+import { generateSlug } from "@/lib/generate-slug";
 
 const orderStatusLabels = {
   CANCELLED: "Đã hủy",
@@ -90,9 +91,19 @@ export default function OrderCard({ order }) {
               <p className="truncate font-medium text-slate-800 text-sm dark:text-slate-100">
                 {item.title ?? "Sản phẩm"}
               </p>
-              <p className="text-slate-500 text-xs dark:text-slate-400">
-                Số lượng: {item.quantity}
-              </p>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <p className="text-slate-500 text-xs dark:text-slate-400">
+                  Số lượng: {item.quantity}
+                </p>
+                {item.title && (
+                  <Link
+                    className="text-lime-600 text-xs transition-colors hover:text-lime-700 hover:underline dark:text-lime-400"
+                    href={`/products/${generateSlug(item.title)}`}
+                  >
+                    Xem sản phẩm
+                  </Link>
+                )}
+              </div>
             </div>
 
             <span className="shrink-0 whitespace-nowrap font-bold text-slate-800 text-sm tabular-nums dark:text-slate-100">
@@ -111,7 +122,7 @@ export default function OrderCard({ order }) {
         </Link>
         <Link
           className="rounded-lg bg-lime-600 px-4 py-2 text-center font-medium text-sm text-white transition-colors hover:bg-lime-700"
-          href={`/dashboard/orders/invoice/${order.id}`}
+          href={`/dashboard/orders/${order.id}/invoice`}
         >
           Xem hóa đơn
         </Link>

@@ -76,6 +76,7 @@ const orderItemSchema = z.object({
   title: z
     .string({ error: "Tên sản phẩm không hợp lệ" })
     .min(1, "Tên sản phẩm không hợp lệ"),
+  vendorId: z.string().trim().min(1).optional(),
 });
 
 export const orderApiSchema = z.object({

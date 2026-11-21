@@ -16,6 +16,42 @@ function generateOrderNumber(length = 8) {
   return result;
 }
 
+/**
+ * Xác định vendorId (User ID của farmer) cho từng sản phẩm trong đơn hàng.
+ * - Ưu tiên vendorId gửi từ giỏ hàng.
+ * - Với giỏ hàng cũ chưa có vendorId: tra product -> farmer -> userId.
+ * Trả về Map<productId, vendorId>. Nếu không tra được -> throw (rollback toàn transaction).
+ */
+async function resolveVendorIds(tx, items) {
+  const vendorIdByProductId = new Map();
+  const missingProductIds = [];
+
+  for (const item of items) {
+    if (item.vendorId) {
+      vendorIdByProductId.set(String(item.id), item.vendorId);
+    } else {
+      missingProductIds.push(String(item.id));
+    }
+  }
+
+  if (missingProductIds.length === 0) {
+    return vendorIdByProductId;
+  }
+
+  const products = await tx.product.findMany({
+    select: { farmer: { select: { userId: true } }, id: true },
+    where: { id: { in: missingProductIds } },
+  });
+
+  for (const product of products) {
+    if (product.farmer?.userId) {
+      vendorIdByProductId.set(String(product.id), product.farmer.userId);
+    }
+  }
+
+  return vendorIdByProductId;
+}
+
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions);
@@ -49,37 +85,80 @@ export async function POST(request) {
     const { items, subtotal, shippingCost, total, ...customerInfo } =
       parsed.data;
 
-    const newOrder = await db.order.create({
-      data: {
-        ...customerInfo,
-        orderNumber: generateOrderNumber(8),
-        province: customerInfo.province ?? "",
-        shippingCost: Number(shippingCost),
-        subtotal: Number(subtotal),
-        total: Number(total),
-        userId,
-        ward: customerInfo.ward ?? "",
-      },
+    // Gộp toàn bộ thao tác ghi vào một transaction nguyên tử:
+    // nếu bất kỳ bước nào lỗi thì toàn bộ được rollback (không còn đơn hàng thiếu chi tiết).
+    const result = await db.$transaction(async (tx) => {
+      const newOrder = await tx.order.create({
+        data: {
+          ...customerInfo,
+          orderNumber: generateOrderNumber(8),
+          province: customerInfo.province ?? "",
+          shippingCost: Number(shippingCost),
+          subtotal: Number(subtotal),
+          total: Number(total),
+          userId,
+          ward: customerInfo.ward ?? "",
+        },
+      });
+
+      const vendorIdByProductId = await resolveVendorIds(tx, items);
+
+      for (const item of items) {
+        if (!vendorIdByProductId.has(String(item.id))) {
+          throw new Error(
+            `Không xác định được nhà cung cấp cho sản phẩm "${item.title}"`,
+          );
+        }
+      }
+
+      await tx.orderItem.createMany({
+        data: items.map((item) => ({
+          imageUrl: item.imageUrl ?? null,
+          orderId: newOrder.id,
+          price: Number(item.price),
+          productId: item.id,
+          quantity: Number(item.quantity),
+          title: item.title,
+          vendorId: vendorIdByProductId.get(String(item.id)),
+        })),
+      });
+
+      const createdOrderItems = await tx.orderItem.findMany({
+        orderBy: { createdAt: "asc" },
+        where: { orderId: newOrder.id },
+      });
+
+      // Tạo một bản ghi Sale cho từng sản phẩm (mỗi vendor tự có doanh số riêng)
+      const sales = await Promise.all(
+        items.map((item) =>
+          tx.sale.create({
+            data: {
+              orderId: newOrder.id,
+              productId: item.id,
+              productImage: item.imageUrl ?? null,
+              productPrice: Number(item.price),
+              productQuantity: Number(item.quantity),
+              productTitle: item.title,
+              total: Number(item.price) * Number(item.quantity),
+              vendorId: vendorIdByProductId.get(String(item.id)),
+            },
+          }),
+        ),
+      );
+
+      return { createdOrderItems, newOrder, sales };
     });
 
-    const newOrderItems = await db.orderItem.createMany({
-      data: items.map((item) => ({
-        imageUrl: item.imageUrl ?? null,
-        orderId: newOrder.id,
-        price: Number(item.price),
-        productId: item.id,
-        quantity: Number(item.quantity),
-        title: item.title,
-      })),
-    });
-
-    console.log("Đơn hàng đã tạo:", newOrder);
-    console.log("Chi tiết sản phẩm:", newOrderItems);
+    console.log("Đơn hàng đã tạo:", result.newOrder);
+    console.log("Chi tiết sản phẩm:", result.createdOrderItems);
+    console.log("Doanh số đã tạo:", result.sales);
 
     return NextResponse.json(
       {
-        data: newOrder,
+        data: result.newOrder,
         message: "Tạo đơn hàng thành công",
+        orderItems: result.createdOrderItems,
+        sales: result.sales,
         status: 200,
       },
       { status: 200 },

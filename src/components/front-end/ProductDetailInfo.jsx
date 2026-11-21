@@ -27,6 +27,7 @@ export default function ProductDetailInfo({ product }) {
         quantity,
         slug: product.slug,
         title: product.title,
+        vendorId: product.farmer?.userId,
       }),
     );
     toast.success("Đã thêm vào giỏ hàng!");

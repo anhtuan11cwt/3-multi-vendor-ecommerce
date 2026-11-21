@@ -6,7 +6,11 @@ export async function GET(_request, { params }) {
   try {
     const { id } = await params;
     const category = await db.category.findUnique({
-      include: { products: true },
+      include: {
+        products: {
+          include: { farmer: { select: { userId: true } } },
+        },
+      },
       where: { id },
     });
 

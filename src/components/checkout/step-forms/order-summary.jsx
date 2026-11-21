@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
@@ -16,6 +17,7 @@ export default function OrderSummary() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
+  const { status: sessionStatus } = useSession();
 
   const cartItems = useSelector((state) => state.cart.cartItems);
   const currentStep = useSelector((state) => state.checkout.currentStep);
@@ -37,6 +39,11 @@ export default function OrderSummary() {
   };
 
   const submitData = async () => {
+    if (sessionStatus !== "authenticated") {
+      toast.error("Vui lòng đăng nhập để đặt hàng");
+      return;
+    }
+
     const payload = {
       ...checkoutFormData,
       items: cartItems.map((item) => ({
@@ -45,6 +52,7 @@ export default function OrderSummary() {
         price: item.price,
         quantity: item.quantity,
         title: item.title,
+        vendorId: item.vendorId,
       })),
       shippingCost,
       subtotal,
@@ -220,7 +228,7 @@ export default function OrderSummary() {
 
             <button
               className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-lime-600 px-3 py-3 text-center font-medium text-sm text-white transition-colors hover:bg-lime-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-6 dark:bg-lime-600 dark:hover:bg-lime-700"
-              disabled={loading || redirecting}
+              disabled={loading || redirecting || sessionStatus === "loading"}
               onClick={submitData}
               type="button"
             >
@@ -228,7 +236,11 @@ export default function OrderSummary() {
                 ? "Đơn hàng đã tạo, đang chuyển hướng..."
                 : loading
                   ? "Đang xử lý, vui lòng chờ..."
-                  : "Tiến hành thanh toán"}
+                  : sessionStatus === "loading"
+                    ? "Đang tải phiên đăng nhập..."
+                    : sessionStatus === "unauthenticated"
+                      ? "Vui lòng đăng nhập để đặt hàng"
+                      : "Tiến hành thanh toán"}
               {!loading && !redirecting && <ChevronRight size={16} />}
             </button>
           </div>

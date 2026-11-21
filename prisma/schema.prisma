@@ -35,6 +35,7 @@ model User {
   farmerProfile     FarmerProfile?
   profile           UserProfile?
   orders            Order[]
+  sales             Sale[]
 }
 
 model UserProfile {
@@ -48,68 +49,69 @@ model UserProfile {
 }
 
 model FarmerProfile {
-  id              String    @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  code            String
-  contactPerson   String?
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  name               String
+  code               String
+  contactPerson      String?
   contactPersonPhone String?
-  email           String?
-  phone           String?
-  physicalAddress String?
-  notes           String?
-  paymentTerms    String?
-  profileImageUrl String?
-  landSize        Float?
-  mainCrop        String?
-  isActive        Boolean   @default(false)
-  userId          String    @unique @db.ObjectId
-  user            User      @relation(fields: [userId], references: [id])
-  products        String[]
-  productList     Product[]
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  email              String?
+  phone              String?
+  physicalAddress    String?
+  notes              String?
+  paymentTerms       String?
+  profileImageUrl    String?
+  landSize           Float?
+  mainCrop           String?
+  isActive           Boolean   @default(false)
+  userId             String    @unique @db.ObjectId
+  user               User      @relation(fields: [userId], references: [id])
+  products           String[]
+  productList        Product[]
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 }
 
 model Product {
-  id               String        @id @default(auto()) @map("_id") @db.ObjectId
-  title            String
-  slug             String        @unique
-  imageUrl         String?
-  description      String?
-  sku              String?
-  barcode          String?
-  productCode      String?
-  productPrice     Float
-  salePrice        Float?
-  tags             String[]
-  isActive         Boolean       @default(true)
-  isWholesale      Boolean       @default(false)
-  wholesalePrice   Float?
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  title             String
+  slug              String        @unique
+  imageUrl          String?
+  description       String?
+  sku               String?
+  barcode           String?
+  productCode       String?
+  productPrice      Float
+  salePrice         Float?
+  tags              String[]
+  isActive          Boolean       @default(true)
+  isWholesale       Boolean       @default(false)
+  wholesalePrice    Float?
   wholesaleQuantity Int?
-  unit             String?
-  productStock     Int?
-  quantity         Int           @default(1)
-  categoryId       String        @db.ObjectId
-  category         Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  farmerId         String        @db.ObjectId
-  farmer           FarmerProfile @relation(fields: [farmerId], references: [id])
-  orderItems       OrderItem[]
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  unit              String?
+  productStock      Int?
+  quantity          Int           @default(1)
+  categoryId        String        @db.ObjectId
+  category          Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  farmerId          String        @db.ObjectId
+  farmer            FarmerProfile @relation(fields: [farmerId], references: [id])
+  orderItems        OrderItem[]
+  sales             Sale[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 }
 
 model Category {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
   title       String
-  slug        String?      @unique
+  slug        String?    @unique
   imageUrl    String?
   description String?
   marketIds   String[]
   products    Product[]
   trainings   Training[]
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model Market {
@@ -193,6 +195,7 @@ model Order {
   status        OrderStatus @default(PROCESSING)
   orderNumber   String?
   orderItems    OrderItem[]
+  sales         Sale[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 }
@@ -203,9 +206,26 @@ model OrderItem {
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId String   @db.ObjectId
   product   Product  @relation(fields: [productId], references: [id])
+  vendorId  String?  @db.ObjectId
   title     String?
   imageUrl  String?
   quantity  Int
   price     Float
   createdAt DateTime @default(now())
+}
+
+model Sale {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId         String   @db.ObjectId
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId       String   @db.ObjectId
+  product         Product  @relation(fields: [productId], references: [id])
+  vendorId        String   @db.ObjectId
+  vendor          User     @relation(fields: [vendorId], references: [id])
+  total           Float
+  productTitle    String?
+  productImage    String?
+  productPrice    Float?
+  productQuantity Int
+  createdAt       DateTime @default(now())
 }

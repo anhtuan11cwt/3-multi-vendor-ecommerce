@@ -38,6 +38,7 @@ const cartSlice = createSlice({
           quantity: newItem.quantity || 1,
           slug: newItem.slug,
           title: newItem.title,
+          vendorId: newItem.vendorId,
         });
       }
       saveCart(state.cartItems);
