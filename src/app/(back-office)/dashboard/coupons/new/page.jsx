@@ -2,8 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import Loading from "@/app/loading";
 import FormHeader from "@/components/back-office/form-header";
 import { ToggleInput } from "@/components/form-inputs";
 import { Button } from "@/components/ui/button";
@@ -23,6 +25,7 @@ import { couponSchema } from "@/lib/validations/coupon";
 export default function NewCouponPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   const form = useForm({
     defaultValues: {
@@ -47,7 +50,13 @@ export default function NewCouponPage() {
 
   async function onSubmit(data) {
     const couponCode = generateCouponCode(data.title, data.expiryDate);
-    const payload = { ...data, couponCode, isActive };
+    // Gắn ID người tạo (vendor) vào mã giảm giá để lọc theo farmer
+    const payload = {
+      ...data,
+      couponCode,
+      isActive,
+      ...(session?.user?.id && { vendorId: session.user.id }),
+    };
     await makePostRequest({
       data: payload,
       endpoint: "api/coupons",
@@ -56,6 +65,10 @@ export default function NewCouponPage() {
       setLoading: setIsLoading,
     });
     router.push("/dashboard/coupons");
+  }
+
+  if (status === "loading") {
+    return <Loading />;
   }
 
   return (
@@ -89,7 +102,7 @@ export default function NewCouponPage() {
                 )}
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field>
                   <FieldLabel>Mã giảm giá</FieldLabel>
                   <Input
@@ -139,11 +152,12 @@ export default function NewCouponPage() {
                 value={isActive}
               />
 
-              <div className="flex justify-end gap-3 pt-4">
+              <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end">
                 <Button
                   className={cn(
                     isLoading &&
                       "pointer-events-none cursor-not-allowed opacity-50",
+                    "w-full sm:w-auto",
                   )}
                   disabled={isLoading}
                   onClick={() => form.reset()}
@@ -152,7 +166,11 @@ export default function NewCouponPage() {
                 >
                   Đặt lại
                 </Button>
-                <Button disabled={isLoading} type="submit">
+                <Button
+                  className="w-full sm:w-auto"
+                  disabled={isLoading}
+                  type="submit"
+                >
                   {isLoading ? "Đang tạo..." : "Tạo mã giảm giá"}
                 </Button>
               </div>

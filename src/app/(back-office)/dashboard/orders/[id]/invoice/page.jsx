@@ -1,6 +1,7 @@
 import { FileText } from "lucide-react";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
+import SalesInvoice from "@/components/dashboard/orders/sales-invoice";
 import { authOptions } from "@/lib/authOptions";
 import db from "@/lib/db";
 
@@ -21,7 +22,10 @@ export default async function InvoicePage({ params }) {
   }
 
   const order = OBJECT_ID_REGEX.test(id)
-    ? await db.order.findUnique({ where: { id } })
+    ? await db.order.findUnique({
+        include: { orderItems: true },
+        where: { id },
+      })
     : null;
 
   if (!order || order.userId !== session.user.id) {
@@ -41,8 +45,8 @@ export default async function InvoicePage({ params }) {
   }
 
   return (
-    <div className="mx-auto max-w-2xl rounded-xl border border-slate-200 bg-white px-3 py-6 shadow-sm sm:px-8 sm:py-10 dark:border-slate-700 dark:bg-slate-800">
-      <div className="flex items-center gap-3 border-slate-200 border-b pb-4 dark:border-slate-700">
+    <div className="space-y-6">
+      <div className="flex items-center gap-3 print:hidden">
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-lime-100 text-lime-600 dark:bg-lime-950 dark:text-lime-400">
           <FileText size={24} />
         </span>
@@ -56,7 +60,9 @@ export default async function InvoicePage({ params }) {
         </div>
       </div>
 
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+      <SalesInvoice order={order} />
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-end print:hidden">
         <Link
           className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-center font-medium text-slate-600 text-sm transition-colors hover:border-slate-400 hover:text-slate-800 sm:px-6 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-slate-100"
           href={`/dashboard/orders/${order.id}`}

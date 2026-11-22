@@ -1,28 +1,40 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import { getServerSession } from "next-auth";
 import PageHeader from "@/components/back-office/page-header";
 import DataTable from "@/components/data-table/data-table";
-import { getData } from "@/lib/getData";
+import { authOptions } from "@/lib/authOptions";
+import db from "@/lib/db";
 import { columns } from "./columns";
 
-export default function CouponsPage() {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default async function CouponsPage() {
+  const session = await getServerSession(authOptions);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const result = await getData("coupons");
-        setData(result);
-      } catch (error) {
-        console.error("Lỗi khi tải mã giảm giá:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
+  // Không có phiên đăng nhập -> không hiển thị mã giảm giá nào
+  if (!session?.user?.id) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          heading="Mã giảm giá"
+          href="/dashboard/coupons/new"
+          linkTitle="Thêm mã giảm giá"
+        />
+        <div className="rounded-md border p-8 text-center text-muted-foreground">
+          Vui lòng đăng nhập để xem mã giảm giá.
+        </div>
+      </div>
+    );
+  }
+
+  const { id, role } = session.user;
+
+  const allCoupons = await db.coupon.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+
+  // Admin thấy toàn bộ mã, farmer chỉ thấy mã do mình tạo
+  const data =
+    role === "ADMIN"
+      ? allCoupons
+      : allCoupons.filter((coupon) => coupon.vendorId === id);
 
   return (
     <div className="space-y-6">
@@ -31,23 +43,17 @@ export default function CouponsPage() {
         href="/dashboard/coupons/new"
         linkTitle="Thêm mã giảm giá"
       />
-      {loading ? (
-        <div className="rounded-md border p-8 text-center text-muted-foreground">
-          Đang tải dữ liệu...
-        </div>
-      ) : (
-        <DataTable
-          columnLabels={{
-            couponCode: "Mã giảm giá",
-            createdAt: "Ngày tạo",
-            expiryDate: "Ngày hết hạn",
-            isActive: "Trạng thái",
-            title: "Tiêu đề",
-          }}
-          columns={columns}
-          data={data}
-        />
-      )}
+      <DataTable
+        columnLabels={{
+          couponCode: "Mã giảm giá",
+          createdAt: "Ngày tạo",
+          expiryDate: "Ngày hết hạn",
+          isActive: "Trạng thái",
+          title: "Tiêu đề",
+        }}
+        columns={columns}
+        data={data}
+      />
     </div>
   );
 }

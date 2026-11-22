@@ -80,17 +80,19 @@ function SidebarContent() {
 
   if (role === "farmer") {
     visibleNavLinks = [
-      { href: "/dashboard/orders", icon: ShoppingBag, label: "Đơn hàng" },
       { href: "/dashboard/sales", icon: BadgeDollarSign, label: "Doanh số" },
       { href: "/dashboard/community", icon: Building2, label: "Cộng đồng" },
       { href: "/dashboard/markets", icon: Store, label: "Chợ" },
-      { href: "/dashboard/customers", icon: Users, label: "Khách hàng" },
       { href: "/dashboard/wallet", icon: Wallet, label: "Ví" },
       { href: "/dashboard/settings", icon: Settings, label: "Cài đặt" },
       { href: "/dashboard/profile", icon: User, label: "Hồ sơ" },
       { href: "/", icon: ShoppingCart, label: "Cửa hàng trực tuyến" },
     ];
-    visibleCatalogLinks = [];
+    // Farmer chỉ quản lý sản phẩm và mã giảm giá do mình tạo
+    visibleCatalogLinks = [
+      { href: "/dashboard/products", icon: Package, label: "Sản phẩm" },
+      { href: "/dashboard/coupons", icon: Ticket, label: "Mã giảm giá" },
+    ];
   } else if (role === "user") {
     visibleNavLinks = [
       {

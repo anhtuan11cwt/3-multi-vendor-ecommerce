@@ -16,6 +16,8 @@ export const couponSchema = z.object({
 
 export const couponApiSchema = couponSchema.extend({
   couponCode: z.string().min(1, "Mã giảm giá không hợp lệ"),
+  // vendorId là ID người tạo (farmer), dùng để lọc mã giảm giá theo vendor
+  vendorId: z.string().min(1, "Mã nhà cung cấp không hợp lệ").optional(),
 });
 
 export const couponUpdateSchema = couponSchema
