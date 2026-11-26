@@ -1,7 +1,7 @@
 "use client";
 
 import { Printer } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { convertIsoDateToNormalDate } from "@/lib/convert-iso-date-to-normal-date";
 
@@ -21,14 +21,16 @@ export default function SalesInvoice({ order }) {
 
   // react-to-print clone nội dung hóa đơn vào iframe nhưng KHÔNG clone thẻ
   // <html> (nơi đặt class chứa biến --font-sans của next/font) nên phải
-  // sao chép biến font này vào pageStyle để bản in/PDF dùng đúng font app
-  const [fontSans, setFontSans] = useState("");
-  useEffect(() => {
-    const value = getComputedStyle(document.documentElement)
+  // sao chép biến font này vào pageStyle để bản in/PDF dùng đúng font app.
+  // Đọc lúc render (lazy init) thay vì trong useEffect để không gọi setState
+  // đồng bộ trong effect (lint react-hooks/set-state-in-effect).
+  // Giá trị không nằm trong DOM nên không gây hydration mismatch.
+  const [fontSans] = useState(() => {
+    if (typeof document === "undefined") return "";
+    return getComputedStyle(document.documentElement)
       .getPropertyValue("--font-sans")
       .trim();
-    if (value) setFontSans(value);
-  }, []);
+  });
 
   // react-to-print v3 nhận ref qua contentRef (không còn option content như v2)
   const handlePrint = useReactToPrint({

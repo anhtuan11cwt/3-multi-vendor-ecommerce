@@ -39,7 +39,7 @@ function NotFoundState({ message }) {
         className="rounded-lg bg-lime-600 px-5 py-2.5 font-medium text-sm text-white transition-colors hover:bg-lime-700"
         href="/dashboard/orders"
       >
-        Quay lại đơn hàng của tôi
+        Quay lại danh sách đơn hàng
       </Link>
     </div>
   );
@@ -63,13 +63,19 @@ export default async function OrderDetailPage({ params }) {
     return <NotFoundState message="Không tìm thấy đơn hàng" />;
   }
 
+  const isAdmin =
+    session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+
   const order = await db.order.findUnique({
-    include: { orderItems: true },
+    include: {
+      orderItems: true,
+      user: { select: { email: true, name: true } },
+    },
     where: { id },
   });
 
-  // Chỉ chủ đơn hàng mới được xem chi tiết
-  if (!order || order.userId !== session.user.id) {
+  // Admin/moderator xem được mọi đơn; khách thường chỉ xem được đơn của mình
+  if (!order || (!isAdmin && order.userId !== session.user.id)) {
     return <NotFoundState message="Không tìm thấy đơn hàng" />;
   }
 
@@ -82,7 +88,7 @@ export default async function OrderDetailPage({ params }) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="font-bold text-slate-800 text-xl sm:text-2xl dark:text-slate-100">
+        <h1 className="min-w-0 break-words font-bold text-slate-800 text-xl sm:text-2xl dark:text-slate-100">
           Chi tiết đơn hàng
         </h1>
         <span
@@ -100,7 +106,7 @@ export default async function OrderDetailPage({ params }) {
             "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300"
           }`}
         >
-          {orderStatusLabels[order.status] ?? order.status}
+          {orderStatusLabels[order.status] ?? "Không xác định"}
         </span>
       </div>
 
@@ -113,7 +119,7 @@ export default async function OrderDetailPage({ params }) {
         </p>
         <p className="mt-1 text-slate-500 dark:text-slate-400">
           Thanh toán:{" "}
-          {paymentMethodLabels[order.paymentMethod] ?? order.paymentMethod}
+          {paymentMethodLabels[order.paymentMethod] ?? "Không xác định"}
         </p>
       </div>
 
@@ -133,7 +139,8 @@ export default async function OrderDetailPage({ params }) {
             {order.province}
           </p>
           <p className="break-words text-slate-500 dark:text-slate-400">
-            {order.email} — {order.phone}
+            {order.email}
+            {order.phone ? ` — ${order.phone}` : ""}
           </p>
         </div>
         <div className="min-w-0">
@@ -143,6 +150,11 @@ export default async function OrderDetailPage({ params }) {
           <p className="break-words text-slate-500 dark:text-slate-400">
             Ngày đặt: {new Date(order.createdAt).toLocaleDateString("vi-VN")}
           </p>
+          {isAdmin && order.user && (
+            <p className="break-words text-slate-500 dark:text-slate-400">
+              Người mua: {order.user.name} ({order.user.email})
+            </p>
+          )}
           <p className="break-words text-slate-500 dark:text-slate-400">
             Số sản phẩm: {orderItems.length}
           </p>

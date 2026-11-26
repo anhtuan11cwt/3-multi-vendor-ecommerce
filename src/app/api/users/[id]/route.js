@@ -5,6 +5,15 @@ export async function GET(_request, { params }) {
   try {
     const { id } = await params;
     const user = await db.user.findUnique({
+      select: {
+        createdAt: true,
+        email: true,
+        id: true,
+        image: true,
+        name: true,
+        profile: true,
+        role: true,
+      },
       where: { id },
     });
 

@@ -25,7 +25,7 @@ function formatMoney(value) {
   });
 }
 
-export default function OrderCard({ order }) {
+export default function OrderCard({ customerName, order }) {
   const orderItems = order.orderItems ?? [];
 
   // Ẩn các đơn hàng lỗi không có sản phẩm
@@ -54,6 +54,14 @@ export default function OrderCard({ order }) {
               #{order.orderNumber ?? order.id}
             </span>
           </p>
+          {customerName && (
+            <p className="text-slate-500 text-sm dark:text-slate-400">
+              Người mua:{" "}
+              <span className="font-medium text-slate-700 dark:text-slate-200">
+                {customerName}
+              </span>
+            </p>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -63,10 +71,10 @@ export default function OrderCard({ order }) {
               "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300"
             }`}
           >
-            {orderStatusLabels[order.status] ?? order.status}
+            {orderStatusLabels[order.status] ?? "Không xác định"}
           </span>
           <span className="font-semibold text-slate-800 text-sm dark:text-slate-100">
-            Tổng tiền: {formatMoney(subTotal)}đ
+            Tạm tính: {formatMoney(subTotal)}đ
           </span>
         </div>
       </div>

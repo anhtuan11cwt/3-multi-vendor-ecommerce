@@ -21,6 +21,9 @@ export default async function InvoicePage({ params }) {
     );
   }
 
+  const isAdmin =
+    session.user.role === "ADMIN" || session.user.role === "MODERATOR";
+
   const order = OBJECT_ID_REGEX.test(id)
     ? await db.order.findUnique({
         include: { orderItems: true },
@@ -28,7 +31,8 @@ export default async function InvoicePage({ params }) {
       })
     : null;
 
-  if (!order || order.userId !== session.user.id) {
+  // Admin/moderator xem được mọi hóa đơn; khách thường chỉ xem hóa đơn của mình
+  if (!order || (!isAdmin && order.userId !== session.user.id)) {
     return (
       <div className="rounded-xl border border-slate-200 bg-white p-8 text-center dark:border-slate-700 dark:bg-slate-800">
         <p className="text-slate-600 text-sm dark:text-slate-400">
@@ -38,7 +42,7 @@ export default async function InvoicePage({ params }) {
           className="mt-4 inline-block rounded-lg bg-lime-600 px-5 py-2.5 font-medium text-sm text-white transition-colors hover:bg-lime-700"
           href="/dashboard/orders"
         >
-          Quay lại đơn hàng của tôi
+          Quay lại danh sách đơn hàng
         </Link>
       </div>
     );
@@ -50,7 +54,7 @@ export default async function InvoicePage({ params }) {
         <span className="flex h-12 w-12 items-center justify-center rounded-full bg-lime-100 text-lime-600 dark:bg-lime-950 dark:text-lime-400">
           <FileText size={24} />
         </span>
-        <div>
+        <div className="min-w-0">
           <h1 className="font-bold text-slate-800 text-xl sm:text-2xl dark:text-slate-100">
             Hóa đơn
           </h1>

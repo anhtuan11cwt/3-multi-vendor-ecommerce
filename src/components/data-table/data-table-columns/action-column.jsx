@@ -1,6 +1,7 @@
 import { MoreHorizontal } from "lucide-react";
 import DeleteBtn from "@/components/actions/delete-btn";
 import EditBtn from "@/components/actions/edit-btn";
+import ViewOrdersBtn from "@/components/actions/view-orders-btn";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,7 @@ export default function ActionColumn({
   row,
   route,
   title,
+  viewEndpoint,
 }) {
   const item = row.original;
   return (
@@ -22,13 +24,21 @@ export default function ActionColumn({
         <span className="sr-only">Mở menu</span>
         <MoreHorizontal className="h-4 w-4" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-64 whitespace-nowrap">
+      <DropdownMenuContent
+        align="end"
+        className="min-w-64 max-w-[calc(100vw-1rem)] whitespace-nowrap"
+      >
         <DropdownMenuItem>
           <EditBtn
             editEndpoint={editEndpoint ?? `${route}/update/${item.id}`}
             title={title}
           />
         </DropdownMenuItem>
+        {viewEndpoint && (
+          <DropdownMenuItem>
+            <ViewOrdersBtn title={title} viewEndpoint={viewEndpoint} />
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem variant="destructive">
           <DeleteBtn
             endpoint={endpoint ?? `${route}/${item.id}`}
