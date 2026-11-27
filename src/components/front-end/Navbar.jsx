@@ -92,10 +92,15 @@ export default function Navbar() {
             </Link>
           </div>
 
-          <form className="hidden flex-1 items-center gap-2 md:flex">
+          <form
+            action="/search"
+            className="hidden flex-1 items-center gap-2 md:flex"
+            method="get"
+          >
             <div className="relative flex flex-1 items-center">
               <input
                 className="w-full rounded-md border border-gray-300 bg-gray-50 py-2 pr-10 pl-3 text-sm outline-none focus:border-lime-500 focus:ring-1 focus:ring-lime-500 dark:border-gray-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder:text-slate-400"
+                name="q"
                 placeholder="Tìm kiếm sản phẩm, danh mục..."
                 type="text"
               />
@@ -161,10 +166,15 @@ export default function Navbar() {
           </div>
         </div>
 
-        <form className="flex items-center gap-2 px-2 pb-3 sm:px-4 md:hidden">
+        <form
+          action="/search"
+          className="flex items-center gap-2 px-2 pb-3 sm:px-4 md:hidden"
+          method="get"
+        >
           <div className="relative flex flex-1 items-center">
             <input
               className="w-full rounded-md border border-gray-300 bg-gray-50 py-2 pr-10 pl-3 text-sm outline-none focus:border-lime-500 focus:ring-1 focus:ring-lime-500 dark:border-gray-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder:text-slate-400"
+              name="q"
               placeholder="Tìm kiếm sản phẩm, danh mục..."
               type="text"
             />

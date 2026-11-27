@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
+import { resolveFarmerId } from "@/lib/resolve-farmer-id";
 import { productApiSchema } from "@/lib/validations/product";
 
 export async function GET() {
@@ -50,7 +51,22 @@ export async function POST(request) {
       productStock,
       quantity,
       categoryId,
+      productImages,
     } = parsed.data;
+
+    const images = Array.isArray(productImages) ? productImages : [];
+    const coverImage = images[0] || imageUrl || null;
+
+    const resolvedFarmerId = await resolveFarmerId(farmerId);
+    if (!resolvedFarmerId) {
+      return NextResponse.json(
+        {
+          message: "Vui lòng chọn nông dân hợp lệ",
+          status: 400,
+        },
+        { status: 400 },
+      );
+    }
 
     let existingProduct = await db.product.findUnique({
       where: { slug },
@@ -71,11 +87,12 @@ export async function POST(request) {
         barcode: barcode || null,
         categoryId,
         description: description || null,
-        farmerId,
-        imageUrl: imageUrl || null,
+        farmerId: resolvedFarmerId,
+        imageUrl: coverImage,
         isActive,
         isWholesale,
         productCode: productCode || null,
+        productImages: images,
         productPrice: Number.parseFloat(productPrice),
         productStock: productStock ? Number.parseInt(productStock, 10) : null,
         quantity: quantity ? Number.parseInt(quantity, 10) : 1,

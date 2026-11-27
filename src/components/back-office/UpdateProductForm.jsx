@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import FormHeader from "@/components/back-office/form-header";
 import {
   ArrayItemsInput,
-  ImageInput,
+  MultipleImageInput,
   SelectInput,
   ToggleInput,
 } from "@/components/form-inputs";
@@ -23,7 +23,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { generateSlug } from "@/lib/generate-slug";
-import { uploadFile } from "@/lib/upload-file";
 import { cn } from "@/lib/utils";
 import { productSchema } from "@/lib/validations/product";
 
@@ -41,10 +40,12 @@ const unitOptions = [
 
 export default function UpdateProductForm({ product, categories, farmers }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [imageFile, setImageFile] = useState(null);
-  const [currentImageUrl, _setCurrentImageUrl] = useState(
-    product?.imageUrl || "",
-  );
+  const [productImages, setProductImages] = useState(() => {
+    if (Array.isArray(product?.productImages) && product.productImages.length) {
+      return product.productImages;
+    }
+    return product?.imageUrl ? [product.imageUrl] : [];
+  });
   const [resetKey, setResetKey] = useState(0);
   const [tags, setTags] = useState(product?.tags || []);
   const router = useRouter();
@@ -76,23 +77,19 @@ export default function UpdateProductForm({ product, categories, farmers }) {
   async function onSubmit(data) {
     setIsLoading(true);
     try {
-      let imageUrl = currentImageUrl;
-      if (imageFile) {
-        imageUrl = await uploadFile(imageFile, "products");
-      }
-
       const slug = generateSlug(data.title);
       const productData = {
         id: product.id,
         ...data,
-        imageUrl,
+        imageUrl: productImages[0] || "",
         isActive,
+        productImages,
         slug,
         tags,
       };
 
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-      const response = await fetch(`${baseUrl}/api/products`, {
+      const response = await fetch(`${baseUrl}/api/products/${product.id}`, {
         body: JSON.stringify(productData),
         headers: { "Content-Type": "application/json" },
         method: "PUT",
@@ -448,16 +445,17 @@ export default function UpdateProductForm({ product, categories, farmers }) {
                 value={isActive}
               />
 
-              <ImageInput
-                imageUrl={currentImageUrl}
+              <MultipleImageInput
+                imageUrls={productImages}
                 key={resetKey}
                 label="Ảnh sản phẩm"
                 loading={isLoading}
-                maxFileSize={1 * 1024 * 1024}
-                onFileChange={setImageFile}
+                maxFileCount={4}
+                maxFileSize={8 * 1024 * 1024}
+                setImageUrls={setProductImages}
               />
 
-              <div className="flex justify-end gap-3 pt-4">
+              <div className="flex flex-wrap justify-end gap-3 pt-4">
                 <Button
                   className={cn(
                     isLoading &&
@@ -466,7 +464,14 @@ export default function UpdateProductForm({ product, categories, farmers }) {
                   disabled={isLoading}
                   onClick={() => {
                     form.reset();
-                    setImageFile(null);
+                    setProductImages(
+                      Array.isArray(product?.productImages) &&
+                        product.productImages.length
+                        ? product.productImages
+                        : product?.imageUrl
+                          ? [product.imageUrl]
+                          : [],
+                    );
                     setTags(product?.tags || []);
                     setResetKey((k) => k + 1);
                   }}

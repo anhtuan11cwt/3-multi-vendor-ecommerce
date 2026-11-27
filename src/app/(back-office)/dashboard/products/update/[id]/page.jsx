@@ -5,10 +5,10 @@ import { getData } from "@/lib/getData";
 export default async function UpdateProductPage({ params }) {
   const { id } = await params;
 
-  const [product, categoriesData, usersData] = await Promise.all([
+  const [product, categoriesData, farmersData] = await Promise.all([
     getData(`products/${id}`),
     getData("categories"),
-    getData("users"),
+    getData("farmers"),
   ]);
 
   if (!product?.id) {
@@ -20,11 +20,13 @@ export default async function UpdateProductPage({ params }) {
     title: c.title,
   }));
 
-  const farmers = (usersData.data || [])
-    .filter((u) => u.role === "FARMER")
+  // Product.farmerId là FarmerProfile.id (relation bắt buộc),
+  // không phải User.id — lấy từ /api/farmers (kèm farmerProfile).
+  const farmers = (farmersData.data || [])
+    .filter((f) => f.farmerProfile?.id)
     .map((f) => ({
-      id: f.id,
-      title: f.name,
+      id: f.farmerProfile.id,
+      title: f.farmerProfile.name || f.name,
     }));
 
   return (

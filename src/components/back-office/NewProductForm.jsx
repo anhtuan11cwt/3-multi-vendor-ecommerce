@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import FormHeader from "@/components/back-office/form-header";
 import {
   ArrayItemsInput,
-  ImageInput,
+  MultipleImageInput,
   SelectInput,
   ToggleInput,
 } from "@/components/form-inputs";
@@ -24,7 +24,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { generateSlug } from "@/lib/generate-slug";
 import { generateUserCode } from "@/lib/generate-user-code";
-import { uploadFile } from "@/lib/upload-file";
 import { cn } from "@/lib/utils";
 import { productSchema } from "@/lib/validations/product";
 
@@ -42,7 +41,7 @@ const unitOptions = [
 
 export default function NewProductForm({ categories, farmers }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [imageFile, setImageFile] = useState(null);
+  const [productImages, setProductImages] = useState([]);
   const [resetKey, setResetKey] = useState(0);
   const [tags, setTags] = useState([]);
   const router = useRouter();
@@ -74,19 +73,15 @@ export default function NewProductForm({ categories, farmers }) {
   async function onSubmit(data) {
     setIsLoading(true);
     try {
-      let imageUrl = "";
-      if (imageFile) {
-        imageUrl = await uploadFile(imageFile, "products");
-      }
-
       const slug = generateSlug(data.title);
       const productCode = generateUserCode("LP", data.title);
 
       const productData = {
         ...data,
-        imageUrl,
+        imageUrl: productImages[0] || "",
         isActive,
         productCode,
+        productImages,
         quantity: data.quantity || 1,
         slug,
         tags,
@@ -104,7 +99,7 @@ export default function NewProductForm({ categories, farmers }) {
       if (response.ok) {
         toast.success("Tạo sản phẩm thành công!", { duration: 2000 });
         form.reset();
-        setImageFile(null);
+        setProductImages([]);
         setTags([]);
         setResetKey((k) => k + 1);
         router.push("/dashboard/products");
@@ -453,16 +448,17 @@ export default function NewProductForm({ categories, farmers }) {
                 value={isActive}
               />
 
-              <ImageInput
-                imageUrl=""
+              <MultipleImageInput
+                imageUrls={productImages}
                 key={resetKey}
                 label="Ảnh sản phẩm"
                 loading={isLoading}
-                maxFileSize={1 * 1024 * 1024}
-                onFileChange={setImageFile}
+                maxFileCount={4}
+                maxFileSize={8 * 1024 * 1024}
+                setImageUrls={setProductImages}
               />
 
-              <div className="flex justify-end gap-3 pt-4">
+              <div className="flex flex-wrap justify-end gap-3 pt-4">
                 <Button
                   className={cn(
                     isLoading &&
@@ -471,7 +467,7 @@ export default function NewProductForm({ categories, farmers }) {
                   disabled={isLoading}
                   onClick={() => {
                     form.reset();
-                    setImageFile(null);
+                    setProductImages([]);
                     setTags([]);
                     setResetKey((k) => k + 1);
                   }}

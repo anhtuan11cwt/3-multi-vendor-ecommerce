@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { deleteCloudinaryImage } from "@/lib/cloudinary";
+import { deleteCloudinaryImages } from "@/lib/cloudinary";
 import db from "@/lib/db";
+import { resolveFarmerId } from "@/lib/resolve-farmer-id";
 
 export async function GET(_request, { params }) {
   try {
@@ -71,18 +72,49 @@ export async function PUT(request, { params }) {
       productStock,
       quantity,
       categoryId,
+      productImages,
     } = body;
+
+    // FarmerProfile.id cho relation bắt buộc; chấp nhận cả User.id (FARMER)
+    let nextFarmerId = existingProduct.farmerId;
+    if (farmerId) {
+      const resolved = await resolveFarmerId(farmerId);
+      if (!resolved) {
+        return NextResponse.json(
+          { message: "Vui lòng chọn nông dân hợp lệ", status: 400 },
+          { status: 400 },
+        );
+      }
+      nextFarmerId = resolved;
+    }
+
+    const previousImages = Array.isArray(existingProduct.productImages)
+      ? existingProduct.productImages.length
+        ? existingProduct.productImages
+        : existingProduct.imageUrl
+          ? [existingProduct.imageUrl]
+          : []
+      : existingProduct.imageUrl
+        ? [existingProduct.imageUrl]
+        : [];
+
+    const nextImages = Array.isArray(productImages)
+      ? productImages.filter(Boolean)
+      : previousImages;
+
+    const coverImage = nextImages[0] || imageUrl || null;
 
     const updatedProduct = await db.product.update({
       data: {
         barcode: barcode ?? existingProduct.barcode,
         categoryId: categoryId || existingProduct.categoryId,
         description: description ?? existingProduct.description,
-        farmerId: farmerId || existingProduct.farmerId,
-        imageUrl: imageUrl ?? existingProduct.imageUrl,
+        farmerId: nextFarmerId,
+        imageUrl: coverImage,
         isActive: isActive ?? existingProduct.isActive,
         isWholesale: isWholesale ?? existingProduct.isWholesale,
         productCode: productCode ?? existingProduct.productCode,
+        productImages: nextImages,
         productPrice: productPrice
           ? Number.parseFloat(productPrice)
           : existingProduct.productPrice,
@@ -112,11 +144,11 @@ export async function PUT(request, { params }) {
 
     console.log("Đã cập nhật sản phẩm:", updatedProduct);
 
-    if (
-      existingProduct.imageUrl &&
-      existingProduct.imageUrl !== updatedProduct.imageUrl
-    ) {
-      await deleteCloudinaryImage(existingProduct.imageUrl);
+    const removedImages = previousImages.filter(
+      (url) => url && !nextImages.includes(url),
+    );
+    if (removedImages.length) {
+      await deleteCloudinaryImages(removedImages);
     }
 
     return NextResponse.json(updatedProduct);
@@ -147,7 +179,14 @@ export async function DELETE(_request, { params }) {
 
     const deletedProduct = await db.product.delete({ where: { id } });
 
-    await deleteCloudinaryImage(deletedProduct.imageUrl);
+    const imagesToDelete =
+      Array.isArray(deletedProduct.productImages) &&
+      deletedProduct.productImages.length
+        ? deletedProduct.productImages
+        : deletedProduct.imageUrl
+          ? [deletedProduct.imageUrl]
+          : [];
+    await deleteCloudinaryImages(imagesToDelete);
 
     console.log("Đã xóa sản phẩm:", deletedProduct);
 
