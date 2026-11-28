@@ -3,12 +3,57 @@ import db from "@/lib/db";
 import { resolveFarmerId } from "@/lib/resolve-farmer-id";
 import { productApiSchema } from "@/lib/validations/product";
 
-export async function GET() {
+export async function GET(request) {
   try {
-    const products = await db.product.findMany({
+    const { searchParams } = request.nextUrl;
+    const catId = searchParams.get("catId");
+    const sort = searchParams.get("sort");
+    const min = searchParams.get("min");
+    const max = searchParams.get("max");
+
+    const where = {};
+    if (catId) where.categoryId = catId;
+
+    let products = await db.product.findMany({
       include: { farmer: { select: { userId: true } } },
       orderBy: { createdAt: "desc" },
+      where,
     });
+
+    // Giá hiển thị trên giao diện = salePrice (nếu có) hoặc productPrice
+    const priceOf = (product) =>
+      typeof product.salePrice === "number"
+        ? product.salePrice
+        : (product.productPrice ?? 0);
+
+    const parsePrice = (value) => {
+      if (value === null || value === "") return null;
+      const parsed = Number.parseFloat(value);
+      return Number.isNaN(parsed) ? null : parsed;
+    };
+
+    const minPrice = parsePrice(min);
+    const maxPrice = parsePrice(max);
+
+    if (minPrice !== null || maxPrice !== null) {
+      products = products.filter((product) => {
+        const price = priceOf(product);
+        if (minPrice !== null && price < minPrice) return false;
+        if (maxPrice !== null && price > maxPrice) return false;
+        return true;
+      });
+    }
+
+    if (sort === "asc" || sort === "desc") {
+      const factor = sort === "asc" ? 1 : -1;
+      products.sort((a, b) => (priceOf(a) - priceOf(b)) * factor);
+    } else {
+      // Mặc định: A to Z theo tiêu đề
+      products.sort((a, b) =>
+        (a.title || "").localeCompare(b.title || "", "vi"),
+      );
+    }
+
     return NextResponse.json(products);
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

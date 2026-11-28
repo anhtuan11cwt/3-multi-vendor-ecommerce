@@ -17,6 +17,8 @@ export default function ImageInput({
   maxFileSize = DEFAULT_MAX_FILE_SIZE,
 }) {
   const [preview, setPreview] = useState(null);
+  // true khi người dùng bấm X (đã xóa ảnh đang có) — không dùng lại ảnh cũ nữa
+  const [cleared, setCleared] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -30,6 +32,7 @@ export default function ImageInput({
       if (!file) return;
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
+      setCleared(false);
       onFileChange(file);
     },
     [onFileChange],
@@ -46,10 +49,11 @@ export default function ImageInput({
     e.stopPropagation();
     if (preview) URL.revokeObjectURL(preview);
     setPreview(null);
+    setCleared(true);
     onFileChange(null);
   }
 
-  const displayUrl = preview || imageUrl;
+  const displayUrl = preview || (cleared ? null : imageUrl);
 
   return (
     <div className="space-y-2">
@@ -62,10 +66,10 @@ export default function ImageInput({
             loading && "pointer-events-none opacity-50",
           )}
         >
-          <div className="relative inline-block">
+          <div className="relative inline-block max-w-full">
             <Image
               alt="Xem trước"
-              className="rounded-lg border object-contain"
+              className="h-auto max-w-full rounded-lg border object-contain"
               height={192}
               src={displayUrl}
               width={192}
@@ -83,7 +87,7 @@ export default function ImageInput({
         <div
           {...getRootProps()}
           className={cn(
-            "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors",
+            "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-4 transition-colors min-[400px]:p-8",
             isDragActive
               ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
               : "border-slate-300 hover:border-slate-400 dark:border-slate-600 dark:hover:border-slate-500",
@@ -93,12 +97,12 @@ export default function ImageInput({
           <input {...getInputProps()} />
           <div className="flex flex-col items-center gap-2">
             <ImagePlus className="size-8 text-slate-400" />
-            <p className="text-slate-600 text-sm dark:text-slate-400">
+            <p className="px-2 text-center text-slate-600 text-sm dark:text-slate-400">
               {isDragActive
                 ? "Thả ảnh vào đây..."
                 : "Kéo thả hoặc click để tải ảnh lên"}
             </p>
-            <p className="text-slate-400 text-xs">
+            <p className="text-center text-slate-400 text-xs">
               Tối đa {Math.round(maxFileSize / (1024 * 1024))}MB
             </p>
           </div>

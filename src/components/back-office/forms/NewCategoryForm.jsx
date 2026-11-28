@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import { toast } from "sonner";
 import { ImageInput, ToggleInput } from "@/components/form-inputs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,11 +25,22 @@ import { categorySchema } from "@/lib/validations/category";
 export default function NewCategoryForm({ updateData = {} }) {
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
+  const [imageRemoved, setImageRemoved] = useState(false);
   const [resetKey, setResetKey] = useState(0);
   const router = useRouter();
 
   const id = updateData?.id || "";
   const initialImageUrl = updateData?.imageUrl || "";
+
+  const handleImageChange = (file) => {
+    setImageFile(file);
+    setImageRemoved(!file);
+  };
+
+  const resetImage = () => {
+    setImageFile(null);
+    setImageRemoved(false);
+  };
 
   const form = useForm({
     defaultValues: {
@@ -46,7 +58,8 @@ export default function NewCategoryForm({ updateData = {} }) {
   async function onSubmit(data) {
     setIsLoading(true);
     try {
-      let imageUrl = initialImageUrl;
+      // Người dùng bấm X mà không chọn ảnh mới → gửi chuỗi rỗng để xóa ảnh
+      let imageUrl = imageRemoved ? "" : initialImageUrl;
       if (imageFile) {
         imageUrl = await uploadFile(imageFile, "categories");
       }
@@ -71,14 +84,17 @@ export default function NewCategoryForm({ updateData = {} }) {
           redirect,
           reset: () => {
             form.reset();
-            setImageFile(null);
+            resetImage();
             setResetKey((k) => k + 1);
           },
           resourceName: "danh mục",
           setLoading: setIsLoading,
         });
       }
-    } catch {
+    } catch (error) {
+      toast.error(error?.message || "Tải ảnh lên thất bại", {
+        duration: 2000,
+      });
       setIsLoading(false);
     }
   }
@@ -142,7 +158,7 @@ export default function NewCategoryForm({ updateData = {} }) {
               key={resetKey}
               label="Ảnh danh mục"
               loading={isLoading}
-              onFileChange={setImageFile}
+              onFileChange={handleImageChange}
             />
 
             <ToggleInput
@@ -153,16 +169,17 @@ export default function NewCategoryForm({ updateData = {} }) {
               value={isActive}
             />
 
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex flex-col-reverse gap-2 pt-4 min-[400px]:flex-row min-[400px]:justify-end min-[400px]:gap-3">
               <Button
                 className={cn(
+                  "w-full min-[400px]:w-auto",
                   isLoading &&
                     "pointer-events-none cursor-not-allowed opacity-50",
                 )}
                 disabled={isLoading}
                 onClick={() => {
                   form.reset();
-                  setImageFile(null);
+                  resetImage();
                   setResetKey((k) => k + 1);
                 }}
                 type="button"
@@ -172,6 +189,7 @@ export default function NewCategoryForm({ updateData = {} }) {
               </Button>
               <Button
                 className={cn(
+                  "w-full min-[400px]:w-auto",
                   isLoading &&
                     "pointer-events-none cursor-not-allowed opacity-50",
                 )}

@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
+import { findImagesInUse } from "@/lib/image-usage";
 
 cloudinary.config({
   api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
@@ -34,7 +35,7 @@ export function getCloudinaryPublicId(url) {
   return idSegments.join("/");
 }
 
-export async function deleteCloudinaryImage(url) {
+async function destroyImage(url) {
   const publicId = getCloudinaryPublicId(url);
   if (!publicId) return false;
 
@@ -53,7 +54,32 @@ export async function deleteCloudinaryImage(url) {
   }
 }
 
+export async function deleteCloudinaryImage(url) {
+  if (!url) return false;
+
+  // Nhiều bản ghi có thể dùng chung1 URL ảnh → chỉ xóa khi không còn ai tham chiếu
+  const inUse = await findImagesInUse([url]);
+  if (inUse.has(url)) {
+    console.log("Giữ lại ảnh còn được bản ghi trong CSDL tham chiếu:", url);
+    return false;
+  }
+
+  return destroyImage(url);
+}
+
 export async function deleteCloudinaryImages(urls) {
   const uniqueUrls = [...new Set(urls.filter(Boolean))];
-  await Promise.all(uniqueUrls.map((url) => deleteCloudinaryImage(url)));
+  if (uniqueUrls.length === 0) return;
+
+  const inUse = await findImagesInUse(uniqueUrls);
+
+  await Promise.all(
+    uniqueUrls.map((url) => {
+      if (inUse.has(url)) {
+        console.log("Giữ lại ảnh còn được bản ghi trong CSDL tham chiếu:", url);
+        return undefined;
+      }
+      return destroyImage(url);
+    }),
+  );
 }

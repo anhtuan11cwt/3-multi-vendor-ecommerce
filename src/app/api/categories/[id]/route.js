@@ -45,7 +45,7 @@ export async function PUT(request, { params }) {
     const updatedCategory = await db.category.update({
       data: {
         description,
-        imageUrl,
+        imageUrl: imageUrl || null,
         isActive,
         slug,
         title,
